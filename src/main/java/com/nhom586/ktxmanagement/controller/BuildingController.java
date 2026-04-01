@@ -23,4 +23,6 @@ public class BuildingController {
         // Hàm findAll() do Spring Boot tự sinh ra, tương đương lệnh SELECT * FROM buildings
         return buildingRepository.findAll();
     }
+
+
 }
