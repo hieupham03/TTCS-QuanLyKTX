@@ -23,9 +23,9 @@ public class StudentService {
     public Student CreateStudent (StudentCreationRequest request) {
 
         Student student = studentMapper.toStudent(request);
-//        if(studentRepository.existsById(request.getStudentCode())){
-//            throw new RuntimeException("Mã sinh viên đã tồn tại");
-//        }
+        if(studentRepository.existsById(request.getStudentCode())){
+            throw new RuntimeException("Mã sinh viên đã tồn tại");
+        }
 
         return studentRepository.save(student);
     }
