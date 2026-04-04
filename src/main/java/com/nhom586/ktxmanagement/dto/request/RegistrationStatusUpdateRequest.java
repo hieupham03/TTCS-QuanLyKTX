@@ -18,4 +18,9 @@ public class RegistrationStatusUpdateRequest {
     Registration.RegistrationStatus status;
 
     String note;
+
+    // Khi status = APPROVED, admin phải cung cấp phòng và giá để hệ thống tự tạo hợp đồng
+    Integer assignedRoomId;
+
+    Integer roomPrice;
 }

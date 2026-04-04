@@ -12,6 +12,7 @@ import com.nhom586.ktxmanagement.repository.RoomRepository;
 import com.nhom586.ktxmanagement.repository.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -26,6 +27,8 @@ public class RegistrationService {
     private RegistrationPeriodRepository periodRepository;
     @Autowired
     private RoomRepository roomRepository;
+    @Autowired
+    private ContractService contractService;
 
     public List<Registration> getAllRegistrations() {
         return registrationRepository.findAll();
@@ -74,6 +77,7 @@ public class RegistrationService {
         return registrationRepository.save(registration);
     }
 
+    @Transactional
     public Registration updateRegistrationStatus(Integer id, RegistrationStatusUpdateRequest request) {
         Registration registration = getRegistrationById(id);
         registration.setStatus(request.getStatus());
@@ -81,7 +85,24 @@ public class RegistrationService {
             registration.setNote(request.getNote());
         }
 
-        // Logic mở rộng: Khi Status == APPROVED -> có thể gọi tạo Contract (Tuần 3)
+        // Khi duyệt đơn (APPROVED), tự động tạo hợp đồng
+        if (request.getStatus() == Registration.RegistrationStatus.APPROVED) {
+            if (request.getAssignedRoomId() == null) {
+                throw new RuntimeException("Vui lòng chỉ định phòng (assignedRoomId) khi duyệt đơn.");
+            }
+            if (request.getRoomPrice() == null || request.getRoomPrice() <= 0) {
+                throw new RuntimeException("Vui lòng nhập giá phòng hợp lệ (roomPrice) khi duyệt đơn.");
+            }
+
+            Room assignedRoom = roomRepository.findById(request.getAssignedRoomId())
+                    .orElseThrow(() -> new RuntimeException("Phòng được chỉ định không tồn tại: " + request.getAssignedRoomId()));
+
+            // Lưu registration trước, sau đó tạo contract
+            Registration saved = registrationRepository.save(registration);
+            contractService.createContractFromRegistration(saved, assignedRoom, request.getRoomPrice());
+            return saved;
+        }
+
         return registrationRepository.save(registration);
     }
-}
+}
