@@ -23,12 +23,12 @@ public class RegistrationController {
     }
 
     @GetMapping("/{id}")
-    public Registration getRegistrationById(@PathVariable Integer id) {
+    public Registration getRegistrationById(@PathVariable("id") Integer id) {
         return registrationService.getRegistrationById(id);
     }
 
     @GetMapping("/student/{studentCode}")
-    public List<Registration> getRegistrationsByStudent(@PathVariable String studentCode) {
+    public List<Registration> getRegistrationsByStudent(@PathVariable("studentCode") String studentCode) {
         return registrationService.getRegistrationsByStudent(studentCode);
     }
 
@@ -38,7 +38,7 @@ public class RegistrationController {
     }
 
     @PutMapping("/{id}/status")
-    public Registration updateRegistrationStatus(@PathVariable Integer id,
+    public Registration updateRegistrationStatus(@PathVariable("id") Integer id,
             @RequestBody @Valid RegistrationStatusUpdateRequest request) {
         return registrationService.updateRegistrationStatus(id, request);
     }
