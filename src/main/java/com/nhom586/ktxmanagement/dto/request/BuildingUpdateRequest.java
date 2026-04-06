@@ -1,6 +1,5 @@
 package com.nhom586.ktxmanagement.dto.request;
 
-
 import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -12,16 +11,9 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AccountCreationRequest {
+
+public class BuildingUpdateRequest {
     @NotBlank
-    String username;
-
-    @NotBlank
-    String email;
-
-    @NotBlank
-    String passwordHash;
-
-    boolean isActive = true;
-
+    Integer roomPrice;
+    String description;
 }

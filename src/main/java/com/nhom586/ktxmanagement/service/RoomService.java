@@ -13,9 +13,11 @@ public class RoomService {
     private RoomRepository roomRepository;
 
     public List<Room> getAllRooms() {
+
         return roomRepository.findAll();
     }
     public Room getRoomById(Integer id) {
+
         return roomRepository.findById(id).orElse(null);
     }
 

@@ -1,4 +1,4 @@
-package com.nhom586.ktxmanagement.dto.request;
+package com.nhom586.ktxmanagement.dto.response;
 
 
 import lombok.*;
@@ -9,7 +9,6 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
-public class AuthenticationRequest {
-    String username;
-    String passwordHash;
+public class IntrospectResponse {
+    boolean isValid;
 }

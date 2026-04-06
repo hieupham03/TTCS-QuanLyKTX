@@ -9,6 +9,9 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,6 +20,7 @@ import java.util.List;
 @RequestMapping("/api/students")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Slf4j
 public class StudentController {
     StudentService studentService;
 
@@ -26,8 +30,14 @@ public class StudentController {
         return studentService.CreateStudent(request);
     }
 
+
     @GetMapping
     List<Student> GetStudents () {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        log.info("username: {}", authentication.getName());
+        authentication.getAuthorities().forEach(grantedAuthority -> log.info(grantedAuthority.getAuthority()));
+
         return studentService.GetStudents();
     }
 

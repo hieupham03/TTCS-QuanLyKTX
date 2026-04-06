@@ -1,7 +1,7 @@
 package com.nhom586.ktxmanagement.dto.request;
 
 
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Email;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,16 +12,12 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AccountCreationRequest {
-    @NotBlank
-    String username;
+public class AccountUpdateRequest {
 
-    @NotBlank
+    @Email(message = "Email không hợp lệ")
     String email;
 
-    @NotBlank
     String passwordHash;
 
-    boolean isActive = true;
-
+    String isActive;
 }
