@@ -15,6 +15,7 @@ import com.nimbusds.jwt.SignedJWT;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,15 +26,16 @@ import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
 @Service
-@RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-
-// xác thực người dùng
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class AuthenticationService {
-    AccountRepository accountRepository;
+    private final AccountRepository accountRepository;
 
-    protected static final String SIGNER_KEY
-            = "59fbd5522dde4675661e3b3641b4473fd02ae71265e45d0097b02bc6aad29a0a";
+    @Value("${jwt.secret}")
+    private String signerKey;
+
+    public AuthenticationService(AccountRepository accountRepository) {
+        this.accountRepository = accountRepository;
+    }
 
     public AuthenticationResponse authenticate (AuthenticationRequest request) throws JOSEException {
         Account account = accountRepository.findByUsername(request.getUsername())
@@ -69,14 +71,14 @@ public class AuthenticationService {
 
         JWSObject jwsObject = new JWSObject(jwsHeader, payload);
 
-        jwsObject.sign(new MACSigner(SIGNER_KEY.getBytes()));
+        jwsObject.sign(new MACSigner(signerKey.getBytes()));
         return jwsObject.serialize();
     }
 
     public IntrospectResponse introspectResponse (IntrospectRequest request) throws JOSEException, ParseException {
         var token = request.getToken();
 
-        JWSVerifier jwsVerifier = new MACVerifier(SIGNER_KEY.getBytes());
+        JWSVerifier jwsVerifier = new MACVerifier(signerKey.getBytes());
 
         SignedJWT signedJWT = SignedJWT.parse(token);
 
@@ -88,6 +90,4 @@ public class AuthenticationService {
                 .isValid(expiry.after(new Date()) && verified)
                 .build();
     }
-
-
 }

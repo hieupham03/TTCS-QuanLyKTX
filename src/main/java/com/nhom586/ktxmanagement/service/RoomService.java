@@ -33,6 +33,8 @@ public class RoomService {
         Building building = buildingRepository.findByName(request.getBuilding().getName())
                     .orElseThrow(() -> new RuntimeException("Toà nhà không tồn tại"));
 
+        room.setStatus(Room.RoomStatus.AVAILABLE);
+
         return roomRepository.save(room);
     }
 

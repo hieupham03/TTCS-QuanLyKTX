@@ -43,7 +43,7 @@ public class RoomController {
 
     // Chỉnh sửa thông tin phòng theo số hiệu phòng
     @PutMapping("/{roomNumber}")
-    public Room getRoomByRoomNumber(@Valid @PathVariable("roomNumber") String roomNumber, @RequestBody RoomUpdateRequest request) {
+    public Room updateRoomByRoomNumber(@Valid @PathVariable("roomNumber") String roomNumber, @RequestBody RoomUpdateRequest request) {
         return roomService.uodateRoom(roomNumber, request);
     }
 
