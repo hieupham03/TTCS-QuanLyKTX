@@ -25,17 +25,16 @@ import javax.crypto.spec.SecretKeySpec;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    private final String[] PUBLIC_ENPOINTS = {"/api/auth/login"};
+    private final String[] PUBLIC_ENDPOINTS = {"/api/auth/login", "/api/registrations"};
     protected static final String SIGNER_KEY
             = "59fbd5522dde4675661e3b3641b4473fd02ae71265e45d0097b02bc6aad29a0a";
 
-
-
+    // Bảo mật hệ thống
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) {
         // Nở khoá tất cả
         httpSecurity.authorizeHttpRequests(request ->
-                request.requestMatchers(HttpMethod.POST, PUBLIC_ENPOINTS).permitAll()
+                request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
                         .anyRequest().authenticated()
         );
 
@@ -63,6 +62,8 @@ public class SecurityConfig {
                 .build();
     }
 
+
+    // Đổi SCOPE_ thành ROLE_
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
@@ -74,6 +75,7 @@ public class SecurityConfig {
         return jwtAuthenticationConverter;
     }
 
+    // Mã hoá mật khẩu
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(10);

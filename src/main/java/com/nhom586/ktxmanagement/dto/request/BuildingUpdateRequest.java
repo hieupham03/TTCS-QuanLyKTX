@@ -1,6 +1,8 @@
 package com.nhom586.ktxmanagement.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,7 +15,10 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 
 public class BuildingUpdateRequest {
-    @NotBlank
+
+    @Positive(message = "Giá phòng phải lớn hơn 0")
+    @NotNull(message = "Giá phòng không được để trống")
     Integer roomPrice;
+
     String description;
 }

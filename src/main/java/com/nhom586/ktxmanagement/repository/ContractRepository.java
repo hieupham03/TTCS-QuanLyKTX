@@ -23,4 +23,7 @@ public interface ContractRepository extends JpaRepository<Contract, Integer> {
 
     boolean existsByStudentStudentCodeAndPeriodIdAndStatusNot(
             String studentCode, Integer periodId, Contract.ContractStatus status);
-}
+
+    // Đếm số hợp đồng active trong phòng
+    long countByRoomIdAndStatus(Integer roomId, Contract.ContractStatus status);
+}

@@ -1,5 +1,6 @@
 package com.nhom586.ktxmanagement.service;
 
+import com.nhom586.ktxmanagement.dto.request.AccountCreationRequest;
 import com.nhom586.ktxmanagement.dto.request.RegistrationCreationRequest;
 import com.nhom586.ktxmanagement.dto.request.RegistrationStatusUpdateRequest;
 import com.nhom586.ktxmanagement.entity.Registration;
@@ -29,6 +30,8 @@ public class RegistrationService {
     private RoomRepository roomRepository;
     @Autowired
     private ContractService contractService;
+    @Autowired
+    private AccountService accountService;
 
     public List<Registration> getAllRegistrations() {
         return registrationRepository.findAll();
@@ -100,9 +103,35 @@ public class RegistrationService {
             // Lưu registration trước, sau đó tạo contract
             Registration saved = registrationRepository.save(registration);
             contractService.createContractFromRegistration(saved, assignedRoom, request.getRoomPrice());
+            
+            // Tự động tạo tài khoản cho sinh viên khi duyệt đơn
+            autoCreateAccountForStudent(saved.getStudent());
+            
             return saved;
         }
 
         return registrationRepository.save(registration);
     }
-}
+
+    // Tạo tài khoản tự động cho sinh viên khi đơn được duyệt
+    private void autoCreateAccountForStudent(Student student) {
+        // Kiểm tra xem sinh viên đã có tài khoản chưa
+        if (student.getAccount() != null) {
+            return; // Tài khoản đã tồn tại, không tạo lại
+        }
+
+        try {
+            // Tạo request để tạo tài khoản
+            AccountCreationRequest accountRequest = new AccountCreationRequest();
+            accountRequest.setUsername(student.getStudentCode()); // Username = StudentCode
+            accountRequest.setEmail(student.getEmail()); // Email từ Student
+            accountRequest.setPasswordHash("Ktx@" + student.getStudentCode()); // Password mặc định
+
+            // Gọi AccountService để tạo tài khoản
+            accountService.createAccount(accountRequest);
+        } catch (RuntimeException e) {
+            // Nếu username hoặc email đã tồn tại, log lỗi nhưng không ngắt quy trình approval
+            System.err.println("Lỗi tạo tài khoản cho sinh viên " + student.getStudentCode() + ": " + e.getMessage());
+        }
+    }
+}

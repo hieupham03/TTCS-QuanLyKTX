@@ -33,10 +33,10 @@ public class StudentController {
 
     @GetMapping
     List<Student> GetStudents () {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        log.info("username: {}", authentication.getName());
-        authentication.getAuthorities().forEach(grantedAuthority -> log.info(grantedAuthority.getAuthority()));
+//        var authentication = SecurityContextHolder.getContext().getAuthentication();
+//
+//        log.info("username: {}", authentication.getName());
+//        authentication.getAuthorities().forEach(grantedAuthority -> log.info(grantedAuthority.getAuthority()));
 
         return studentService.GetStudents();
     }

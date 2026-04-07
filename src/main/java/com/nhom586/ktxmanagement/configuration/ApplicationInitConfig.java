@@ -19,6 +19,8 @@ public class ApplicationInitConfig {
     PasswordEncoder passwordEncoder;
     RoleRepository roleRepository;
 
+
+    // tạo tài khoản admin mỗi khi chạy ứng dụng
     @Bean
     ApplicationRunner applicationRunner(AccountRepository accountRepository) {
         return args -> {
@@ -31,7 +33,8 @@ public class ApplicationInitConfig {
                         .username("admin")
                         .passwordHash(passwordEncoder.encode("admin@123"))
                         .role(role)
-                        .email("admin@gmail.com")
+                        .email("admin1@gmail.com")
+                        .isActive(true)
                         .build();
 
                 accountRepository.save(account);

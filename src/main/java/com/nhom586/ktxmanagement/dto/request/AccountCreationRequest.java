@@ -22,6 +22,4 @@ public class AccountCreationRequest {
     @NotBlank
     String passwordHash;
 
-    boolean isActive = true;
-
 }

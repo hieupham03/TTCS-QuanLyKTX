@@ -12,6 +12,8 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/accounts")
 @RequiredArgsConstructor
@@ -19,14 +21,34 @@ import org.springframework.web.bind.annotation.*;
 public class AccountController {
     AccountService accountService;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     Account creatAccount(@RequestBody @Valid AccountCreationRequest request){
         return accountService.createAccount(request);
     }
 
-    @PutMapping
-    Account updateAccount(@RequestBody @Valid AccountUpdateRequest request, String username) {
-        return accountService.updateAccount(request, username);
-
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping
+    List<Account> getAccounts () {
+        return accountService.getAccounts();
     }
+
+    @PreAuthorize("hasRole('ADMIN') or returnObject.username == authentication.name")
+    @GetMapping("/{id}")
+    Account getAccountById (@Valid @PathVariable("id") Integer id){
+        return accountService.getAccountById(id);
+    }
+
+    @PreAuthorize("hasRole('ADMIN') or returnObject.username == authentication.name")
+    @GetMapping("/{username}")
+    Account getAccountByUsername(@Valid @PathVariable("username") String username) {
+        return accountService.getAccountByUsername(username);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{username}")
+    Account updateAccount(@Valid @PathVariable("username") String username, @RequestBody AccountUpdateRequest request) {
+        return accountService.updateAccount(request, username);
+    }
+
 }

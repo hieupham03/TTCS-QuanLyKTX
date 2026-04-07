@@ -10,6 +10,6 @@ import java.util.Optional;
 public interface AccountRepository extends JpaRepository<Account, Integer> {
     //kiểm tra username có tồn tại không
     boolean existsByUsername(String username);
-
+    boolean existsByEmail(String email);
     Optional<Account> findByUsername(String username);
 }
