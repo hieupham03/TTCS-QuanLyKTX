@@ -20,6 +20,10 @@ public class ServiceMetric {
     @JoinColumn(name = "room_id", nullable = false)
     private Room room;
 
+    // Tháng lập chỉ số, định dạng "YYYY-MM", ví dụ "2024-04"
+    @Column(name = "billing_month", nullable = false, length = 10)
+    private String billingMonth;
+
     @Column(name = "old_electricity", nullable = false)
     private Integer oldElectricity;
 
