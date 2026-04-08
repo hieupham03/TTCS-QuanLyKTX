@@ -27,7 +27,7 @@ public class RoomController {
     }
 
     @GetMapping
-    public List<Room> getAllRooms() {
+    public List<Room> getAllRooms(@RequestParam(required = false) Room.RoomGender gender) {
         return roomService.getAllRooms();
     }
 

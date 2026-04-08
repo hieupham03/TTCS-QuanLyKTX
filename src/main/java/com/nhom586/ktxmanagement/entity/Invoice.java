@@ -30,6 +30,14 @@ public class Invoice {
     @Column(name = "billing_month", nullable = false, length = 10)
     private String billingMonth;
 
+    // Giá phòng snapshot tại thời điểm lập hóa đơn
+    @Column(name = "room_price", nullable = false)
+    private Integer roomPrice = 0;
+
+    // Tổng tiền = tiền phòng + (tiện điện * giá điện) + (tiện nước * giá nước)
+    @Column(name = "total_amount", nullable = false)
+    private Integer totalAmount = 0;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private InvoiceStatus status = InvoiceStatus.UNPAID;
