@@ -27,7 +27,7 @@ public class StudentController {
     @PostMapping
     Student CreateStudent(@Valid @RequestBody StudentCreationRequest request) {
         System.out.println(studentService);
-        return studentService.CreateStudent(request);
+        return studentService.createStudent(request);
     }
 
 
@@ -38,22 +38,22 @@ public class StudentController {
 //        log.info("username: {}", authentication.getName());
 //        authentication.getAuthorities().forEach(grantedAuthority -> log.info(grantedAuthority.getAuthority()));
 
-        return studentService.GetStudents();
+        return studentService.getStudents();
     }
 
     @GetMapping("/{studentCode}")
     Student GetStudent (@PathVariable("studentCode") String studentCode){
-        return studentService.GetStudent(studentCode);
+        return studentService.getStudent(studentCode);
     }
 
     @PutMapping("/{studentCode}")
     Student UpdateStudent(@Valid  @PathVariable("studentCode") String studentCode, @RequestBody StudentUpdateRequest request) {
-        return studentService.UpdateStudent(studentCode, request);
+        return studentService.updateStudent(studentCode, request);
     }
 
     @DeleteMapping("/{studentCode}")
     String DeleteStudent(@PathVariable("studentCode") String studentCode) {
-        studentService.DeleteStudent(studentCode);
+        studentService.deleteStudent(studentCode);
         return "Student has been deleted";
     }
 }

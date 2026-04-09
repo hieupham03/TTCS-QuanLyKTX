@@ -3,16 +3,21 @@ package com.nhom586.ktxmanagement.service;
 
 import com.nhom586.ktxmanagement.dto.request.AuthenticationRequest;
 import com.nhom586.ktxmanagement.dto.request.IntrospectRequest;
+import com.nhom586.ktxmanagement.dto.request.LogoutRequest;
 import com.nhom586.ktxmanagement.dto.response.AuthenticationResponse;
 import com.nhom586.ktxmanagement.dto.response.IntrospectResponse;
 import com.nhom586.ktxmanagement.entity.Account;
+import com.nhom586.ktxmanagement.entity.InvalidatedToken;
 import com.nhom586.ktxmanagement.repository.AccountRepository;
+import com.nhom586.ktxmanagement.repository.InvalidateTokenRepository;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,14 +29,17 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AuthenticationService {
-    private final AccountRepository accountRepository;
+    AccountRepository accountRepository;
+    InvalidateTokenRepository invalidateTokenRepository;
 
     @Value("${jwt.secret}")
-    private String signerKey;
+    String signerKey;
 
     public AuthenticationService(AccountRepository accountRepository) {
         this.accountRepository = accountRepository;
@@ -56,6 +64,23 @@ public class AuthenticationService {
                 .build();
     }
 
+    public void logout (LogoutRequest request) throws ParseException, JOSEException {
+        var signToken = verifyToken(request.getToken());
+
+        // Lấy thông tin id và thời hạn token
+        String jti = signToken.getJWTClaimsSet().getJWTID();
+        Date expiryTime = signToken.getJWTClaimsSet().getExpirationTime();
+
+        //Thêm vào bảng InvalidatedToken
+        InvalidatedToken invalidatedToken = InvalidatedToken.builder()
+                .id(jti)
+                .expiryTime(expiryTime)
+                .build();
+
+        invalidateTokenRepository.save(invalidatedToken);
+
+    }
+
     public String generateToken(Account account) throws JOSEException {
         JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
 
@@ -64,6 +89,8 @@ public class AuthenticationService {
                 .issuer("KTX.PTIT")
                 .issueTime(new Date())
                 .expirationTime(new Date(Instant.now().plus(30, ChronoUnit.MINUTES).toEpochMilli()))
+                // Tạo id ngẫu nhiên cho token
+                .jwtID(UUID.randomUUID().toString())
                 .claim("scope", account.getRole().getRoleName())
                 .build();
 
@@ -78,16 +105,34 @@ public class AuthenticationService {
     public IntrospectResponse introspectResponse (IntrospectRequest request) throws JOSEException, ParseException {
         var token = request.getToken();
 
-        JWSVerifier jwsVerifier = new MACVerifier(signerKey.getBytes());
+        boolean isValid = true;
 
-        SignedJWT signedJWT = SignedJWT.parse(token);
-
-        Date expiry = signedJWT.getJWTClaimsSet().getExpirationTime();
-
-        var verified = signedJWT.verify(jwsVerifier);
+        try {
+            verifyToken(request.getToken());
+        } catch (RuntimeException e) {
+            isValid = false;
+        }
 
         return IntrospectResponse.builder()
-                .isValid(expiry.after(new Date()) && verified)
+                .isValid(isValid)
                 .build();
+    }
+
+    // Xác thực token
+    public SignedJWT verifyToken (String token) throws JOSEException, ParseException {
+
+        JWSVerifier jwsVerifier = new MACVerifier(signerKey.getBytes());
+
+        // giải mã chuỗi
+        SignedJWT signedJWT = SignedJWT.parse(token);
+
+        // Lấy thời hạn token và kiểm tả chữ ký
+        Date expiry = signedJWT.getJWTClaimsSet().getExpirationTime();
+        var verified = signedJWT.verify(jwsVerifier);
+
+        if(!(verified && expiry.after(new Date())))
+            throw new RuntimeException("Không thể xác thực");
+
+        return signedJWT;
     }
 }

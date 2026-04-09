@@ -3,6 +3,7 @@ package com.nhom586.ktxmanagement.controller;
 
 import com.nhom586.ktxmanagement.dto.request.AuthenticationRequest;
 import com.nhom586.ktxmanagement.dto.request.IntrospectRequest;
+import com.nhom586.ktxmanagement.dto.request.LogoutRequest;
 import com.nhom586.ktxmanagement.dto.response.AuthenticationResponse;
 import com.nhom586.ktxmanagement.dto.response.IntrospectResponse;
 import com.nhom586.ktxmanagement.service.AuthenticationService;
@@ -36,13 +37,20 @@ public class AuthenticationController {
 
     }
 
-    @PostMapping("introspect")
+    @PostMapping("/introspect")
     public IntrospectResponse introspectResponse (@RequestBody IntrospectRequest request) throws ParseException, JOSEException {
         var result = authenticationService.introspectResponse(request);
 
         return IntrospectResponse.builder()
                 .isValid(result.isValid())
                 .build();
+    }
+
+    @PostMapping("/logout")
+    public String logout (@RequestBody LogoutRequest request) throws ParseException, JOSEException {
+        authenticationService.logout(request);
+
+        return "logout thành công";
     }
 
 }

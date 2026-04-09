@@ -10,7 +10,6 @@ import com.nhom586.ktxmanagement.repository.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -23,8 +22,6 @@ public class AccountService {
     AccountRepository accountRepository;
     AccountMapper accountMapper;
     RoleRepository roleRepository;
-    StudentRepository studentRepository;
-    RegistrationRepository registrationRepository;
     PasswordEncoder passwordEncoder;
 
     public Account createAccount(AccountCreationRequest request){
@@ -69,7 +66,7 @@ public class AccountService {
     public Account updateAccount(AccountUpdateRequest request, String username) {
         Account account = getAccountByUsername(username);
 
-        accountMapper.updateAccount(request, username);
+        accountMapper.updateAccount(account, request);
 
         return accountRepository.save(account);
 

@@ -125,7 +125,7 @@ public class RegistrationService {
             AccountCreationRequest accountRequest = new AccountCreationRequest();
             accountRequest.setUsername(student.getStudentCode()); // Username = StudentCode
             accountRequest.setEmail(student.getEmail()); // Email từ Student
-            accountRequest.setPasswordHash("Ktx@" + student.getStudentCode()); // Password mặc định
+            accountRequest.setPasswordHash(student.getCccd() + "@KTX"); // Password mặc định
 
             // Gọi AccountService để tạo tài khoản
             accountService.createAccount(accountRequest);

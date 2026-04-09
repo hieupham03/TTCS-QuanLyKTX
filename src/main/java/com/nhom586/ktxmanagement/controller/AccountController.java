@@ -1,7 +1,6 @@
 package com.nhom586.ktxmanagement.controller;
 
 
-import com.nhom586.ktxmanagement.dto.request.AccountCreationRequest;
 import com.nhom586.ktxmanagement.dto.request.AccountUpdateRequest;
 import com.nhom586.ktxmanagement.entity.Account;
 import com.nhom586.ktxmanagement.service.AccountService;
@@ -21,11 +20,6 @@ import java.util.List;
 public class AccountController {
     AccountService accountService;
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping
-    Account creatAccount(@RequestBody @Valid AccountCreationRequest request){
-        return accountService.createAccount(request);
-    }
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping

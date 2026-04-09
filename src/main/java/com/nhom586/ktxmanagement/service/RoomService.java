@@ -12,7 +12,6 @@ import com.nhom586.ktxmanagement.repository.RoomRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,6 +31,8 @@ public class RoomService {
 
         Building building = buildingRepository.findByName(request.getBuilding().getName())
                     .orElseThrow(() -> new RuntimeException("Toà nhà không tồn tại"));
+
+        room.setBuilding(building);
 
         room.setStatus(Room.RoomStatus.AVAILABLE);
 
@@ -77,15 +78,6 @@ public class RoomService {
                 room.getId(), 
                 Contract.ContractStatus.ACTIVE
         );
-
-        // Đếm số lượng hợp đồng hết hạn
-//        long disabledStudentCount = contractRepository.countByRoomIdAndStatus(
-//                room.getId(),
-//                Contract.ContractStatus.EXPIRED)
-//        + contractRepository.countByRoomIdAndStatus(
-//                room.getId(),
-//                Contract.ContractStatus.CANCELLED
-//        );
 
 
         // So sánh với capacity để cập nhật trạng thái
