@@ -25,4 +25,5 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Integer> {
 
     @Query("SELECT COALESCE(SUM(i.totalAmount), 0) FROM Invoice i WHERE i.status = :status AND i.billingMonth = :billingMonth")
     Integer sumTotalAmountByStatusAndBillingMonth(@Param("status") Invoice.InvoiceStatus status, @Param("billingMonth") String billingMonth);
+
 }

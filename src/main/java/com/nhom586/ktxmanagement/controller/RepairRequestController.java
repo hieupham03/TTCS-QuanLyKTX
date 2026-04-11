@@ -7,9 +7,13 @@ import com.nhom586.ktxmanagement.service.RepairRequestService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * API quản lý Yêu cầu sửa chữa (Repair Request).
@@ -48,11 +52,21 @@ public class RepairRequestController {
      *   roomId (Integer)     → lọc theo ID phòng.
      *   status (String)      → lọc theo trạng thái: "PENDING" | "IN_PROGRESS" | "DONE".
      */
+    @PreAuthorize("hasRole('ADMIN') or ( #studentCode != null and #studentCode == authentication.name )")
     @GetMapping
     public List<RepairRequest> getAllRepairRequests(
             @RequestParam(required = false) String studentCode,
             @RequestParam(required = false) Integer roomId,
             @RequestParam(required = false) RepairRequest.RepairStatus status) {
+
+        // Nếu là ADMIN (không truyền studentCode)
+        if (studentCode == null) {
+            // Chỉ ADMIN mới được dùng các bộ lọc roomId, status hoặc lấy hết
+            if (Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getAuthorities()
+                    .stream().noneMatch(a -> Objects.equals(a.getAuthority(), "ROLE_ADMIN"))) {
+                throw new AccessDeniedException("Bạn không có quyền xem danh sách tổng");
+            }
+        }
 
         if (studentCode != null) {
             return repairRequestService.getRepairRequestsByStudent(studentCode);

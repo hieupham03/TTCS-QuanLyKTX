@@ -68,6 +68,7 @@ public class InvoiceController {
         return invoiceService.getAllInvoices();
     }
 
+
     /**
      * GET /api/invoices/{id}
      * Lấy chi tiết một hóa đơn theo ID.

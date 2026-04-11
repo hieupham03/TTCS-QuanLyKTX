@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -66,6 +67,7 @@ public class RegistrationController {
      * Path variable: studentCode (String) - MSSV, ví dụ "SV2024001".
      * Dùng khi: Sinh viên đăng nhập vào app và muốn xem lịch sử đơn của mình.
      */
+    @PreAuthorize("hasRole('ADMIN') or #studentCode == authentication.name")
     @GetMapping("/student/{studentCode}")
     public List<Registration> getRegistrationsByStudent(@PathVariable("studentCode") String studentCode) {
         return registrationService.getRegistrationsByStudent(studentCode);

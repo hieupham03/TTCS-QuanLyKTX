@@ -62,8 +62,24 @@ public class RoomService {
         return room;
     }
 
+    //Tìm kiếm phòng theo giới tính
+    public List<Room> getRoomsByGender(String gender) {
+        List<Room> rooms = roomRepository.findRoomByGender(gender);
+        rooms.forEach(this::updateRoomStatus);
+
+        return rooms;
+    }
+
+    //Tìm kiếm phòng theo toà nhà
+    public List<Room> getRoomsByBuildingName(String name) {
+        List<Room> rooms = roomRepository.findRoomsByBuildingName(name);
+        rooms.forEach(this::updateRoomStatus);
+
+        return rooms;
+    }
+
     //cập nhật thông tin phòng
-    public Room uodateRoom (String roomNumber, RoomUpdateRequest request) {
+    public Room updateRoom (String roomNumber, RoomUpdateRequest request) {
         Room room = getRoomByRoomNumber(roomNumber);
 
         roomMapper.updateRoom(room, request);

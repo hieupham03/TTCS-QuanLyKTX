@@ -28,9 +28,31 @@ import javax.crypto.spec.SecretKeySpec;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    private final String[] PUBLIC_ENDPOINTS = {
-            "/api/auth/login", "/api/registrations", "/api/auth/logout", "/api/forgotPassword/**"
-                                                };
+    private final String[] PUBLIC_ENDPOINTS_POST = {
+            "/api/students",
+            "/api/auth/login", "/api/auth/introspect", "/api/registrations", "/api/forgotPassword/**",
+    };
+
+    private final String[] PUBLIC_ENDPOINTS_GET = {
+            "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",
+            "/api/buildings/**", "/api/rooms/**"
+    };
+
+    private final String[] PRIVATE_ENDPOINTS_POST = {
+            "/api/auth/logout", "/api/repair-requests/**"
+    };
+
+    private final String[] PRIVATE_ENDPOINTS_GET = {
+            "/api/invoices/**", "/api/repair-requests/**", "/api/registrations/**",
+            "/api/buildings/**", "/api/rooms/**"
+    };
+
+    private  final String[] ADMIN_ENDPOINT = {
+            "/api/rooms/**", "/api/contracts/**", "/api/buildings/**",
+            "/api/service-metrics/**", "/api/service-prices/**", "/api/accounts/**", "/api/dashboard/**",
+            "/api/invoices/**", "/api/repair-requests/**", "/api/registrations/**"
+    };
+
     @Value("${jwt.secret}")
     String signerKey;
 
@@ -38,25 +60,21 @@ public class SecurityConfig {
     private CustomJwtDecoder customJwtDecoder;
 
 
-    // Bảo mật hệ thống
+
     // Bảo mật hệ thống
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         // Nở khoá tất cả
         httpSecurity.authorizeHttpRequests(request ->
-                request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
-                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS_POST).permitAll()
+                        .requestMatchers(HttpMethod.GET, PUBLIC_ENDPOINTS_GET).permitAll()
 
                         // Các API mở cho Sinh Viên và Admin cùng truy cập (Xem hóa đơn, tạo đơn, xem lịch sử sửa chữa/đăng ký)
-                        .requestMatchers(HttpMethod.GET, "/api/invoices/**", "/api/repair-requests/**", "/api/registrations/**").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/api/repair-requests/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, PRIVATE_ENDPOINTS_GET).authenticated()
+                        .requestMatchers(HttpMethod.POST, PRIVATE_ENDPOINTS_POST).authenticated()
 
-                        // Các thao tác còn lại (PUT Update Status, Delete, ...) bắt buộc là ADMIN
-                        .requestMatchers("/api/invoices/**", "/api/repair-requests/**", "/api/registrations/**").hasRole("ADMIN")
-
-                        // Toàn bộ các luồng Quản trị khác (Phòng, Sinh viên, Hợp đồng, Dịch vụ, Tài khoản) -> ADMIN
-                        .requestMatchers("/api/rooms/**", "/api/students/**", "/api/contracts/**", "/api/buildings/**", 
-                                "/api/service-metrics/**", "/api/service-prices/**", "/api/accounts/**", "/api/dashboard/**").hasRole("ADMIN")
+                        // Các thao tác còn lại (PUT Update Status, Delete, ...) bắt buộc là ADMIN, Toàn bộ các luồng Quản trị khác (Phòng, Sinh viên, Hợp đồng, Dịch vụ, Tài khoản) -> ADMIN
+                        .requestMatchers(ADMIN_ENDPOINT).hasRole("ADMIN")
 
                         .anyRequest().authenticated()
         );

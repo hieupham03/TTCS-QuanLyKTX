@@ -29,4 +29,9 @@ public interface ContractRepository extends JpaRepository<Contract, Integer> {
 
     // Đếm tổng số hợp đồng theo trạng thái
     long countByStatus(Contract.ContractStatus status);
+
+
+    Optional<Contract> findByStudentAccountUsernameAndStatus(
+            String username,
+            Contract.ContractStatus status);
 }

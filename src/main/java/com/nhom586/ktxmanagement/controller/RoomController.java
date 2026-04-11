@@ -8,7 +8,6 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,8 +26,16 @@ public class RoomController {
     }
 
     @GetMapping
-    public List<Room> getAllRooms(@RequestParam(required = false) Room.RoomGender gender) {
-        return roomService.getAllRooms();
+    public List<Room> getRoomsByGender(@RequestParam(required = false) Room.RoomGender gender) {
+        if (gender == null) {
+            return roomService.getAllRooms();
+        }
+        return roomService.getRoomsByGender(String.valueOf(gender));
+    }
+
+    @GetMapping("/{name}")
+    public List<Room> getRoomsByBuildingName(@PathVariable("name") String name) {
+        return roomService.getRoomsByBuildingName(name);
     }
 
     @GetMapping("/{id}")
@@ -45,7 +52,7 @@ public class RoomController {
     @PutMapping("number/{roomNumber}")
     public Room updateRoomByRoomNumber(@Valid @PathVariable("roomNumber") String roomNumber,
             @RequestBody RoomUpdateRequest request) {
-        return roomService.uodateRoom(roomNumber, request);
+        return roomService.updateRoom(roomNumber, request);
     }
 
 }

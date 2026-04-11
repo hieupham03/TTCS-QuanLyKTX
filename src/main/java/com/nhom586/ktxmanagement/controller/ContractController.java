@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -66,6 +67,7 @@ public class ContractController {
      * Dùng khi: Sinh viên xem lịch sử hợp đồng; Admin tra cứu sinh viên đang ở phòng nào.
      * Gợi ý FE: Lọc ra bản ghi có status = ACTIVE để hiển thị "Phòng hiện tại".
      */
+    @PreAuthorize("hasRole('ADMIN') or #studentCode == authentication.name")
     @GetMapping("/student/{studentCode}")
     public List<Contract> getContractsByStudent(@PathVariable("studentCode") String studentCode) {
         return contractService.getContractsByStudent(studentCode);

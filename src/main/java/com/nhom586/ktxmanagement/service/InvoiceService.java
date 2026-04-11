@@ -1,15 +1,20 @@
 package com.nhom586.ktxmanagement.service;
 
 import com.nhom586.ktxmanagement.dto.request.InvoiceStatusUpdateRequest;
+import com.nhom586.ktxmanagement.entity.Contract;
 import com.nhom586.ktxmanagement.entity.Invoice;
+import com.nhom586.ktxmanagement.repository.ContractRepository;
 import com.nhom586.ktxmanagement.repository.InvoiceRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -17,6 +22,7 @@ import java.util.List;
 public class InvoiceService {
 
     InvoiceRepository invoiceRepository;
+    ContractRepository contractRepository;
 
     // Lấy toàn bộ hóa đơn (dùng cho Admin xem tổng quan)
     public List<Invoice> getAllInvoices() {
