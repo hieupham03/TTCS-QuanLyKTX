@@ -10,6 +10,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -37,18 +38,19 @@ public class StudentController {
         return studentService.getStudents();
     }
 
-    @PreAuthorize("hasRole('ADMIN') or #studentCode == authentication.name")    @GetMapping("/{studentCode}")
+    @PostAuthorize("hasRole('ADMIN') or returnObject.result.username == authentication.name")
+    @GetMapping("/{studentCode}")
     Student GetStudent (@PathVariable("studentCode") String studentCode){
         return studentService.getStudent(studentCode);
     }
 
-    @PreAuthorize("hasRole('STUDENT') or #studentCode == authentication.name")
+    @PreAuthorize("hasRole('ADMIN') or #studentCode == authentication.principal.claims['studentCode']")
     @PutMapping("/{studentCode}")
     Student UpdateStudent(@Valid  @PathVariable("studentCode") String studentCode, @RequestBody StudentUpdateRequest request) {
         return studentService.updateStudent(studentCode, request);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('STUDENT')")
     @DeleteMapping("/{studentCode}")
     String DeleteStudent(@PathVariable("studentCode") String studentCode) {
         studentService.deleteStudent(studentCode);
