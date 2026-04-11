@@ -27,6 +27,9 @@ public class AccountController {
         return accountService.getAccounts();
     }
 
+
+    // admin có thể truy cập
+    // hoặc người dùng có thể xem của chính mình
     @PreAuthorize("hasRole('ADMIN') or returnObject.username == authentication.name")
     @GetMapping("/{id}")
     Account getAccountById (@Valid @PathVariable("id") Integer id){
@@ -39,7 +42,9 @@ public class AccountController {
         return accountService.getAccountByUsername(username);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+
+    // Chỉ sinh viên mới có thể cập nhật thông tin tài khoản của mình
+    @PreAuthorize("#username == principal.claims['username'] and hasRole('STUDENT')")
     @PutMapping("/{username}")
     Account updateAccount(@Valid @PathVariable("username") String username, @RequestBody AccountUpdateRequest request) {
         return accountService.updateAccount(request, username);

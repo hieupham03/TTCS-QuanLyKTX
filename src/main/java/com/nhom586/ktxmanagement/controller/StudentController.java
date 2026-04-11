@@ -24,33 +24,31 @@ import java.util.List;
 public class StudentController {
     StudentService studentService;
 
+
     @PostMapping
     Student CreateStudent(@Valid @RequestBody StudentCreationRequest request) {
         System.out.println(studentService);
         return studentService.createStudent(request);
     }
 
-
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     List<Student> GetStudents () {
-//        var authentication = SecurityContextHolder.getContext().getAuthentication();
-//
-//        log.info("username: {}", authentication.getName());
-//        authentication.getAuthorities().forEach(grantedAuthority -> log.info(grantedAuthority.getAuthority()));
-
         return studentService.getStudents();
     }
 
-    @GetMapping("/{studentCode}")
+    @PreAuthorize("hasRole('ADMIN') or #studentCode == authentication.name")    @GetMapping("/{studentCode}")
     Student GetStudent (@PathVariable("studentCode") String studentCode){
         return studentService.getStudent(studentCode);
     }
 
+    @PreAuthorize("hasRole('STUDENT') or #studentCode == authentication.name")
     @PutMapping("/{studentCode}")
     Student UpdateStudent(@Valid  @PathVariable("studentCode") String studentCode, @RequestBody StudentUpdateRequest request) {
         return studentService.updateStudent(studentCode, request);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{studentCode}")
     String DeleteStudent(@PathVariable("studentCode") String studentCode) {
         studentService.deleteStudent(studentCode);
