@@ -5,7 +5,9 @@ import com.nhom586.ktxmanagement.dto.request.RegistrationStatusUpdateRequest;
 import com.nhom586.ktxmanagement.entity.Registration;
 import com.nhom586.ktxmanagement.service.RegistrationService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,10 +30,11 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/registrations")
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class RegistrationController {
 
-    @Autowired
-    private RegistrationService registrationService;
+    RegistrationService registrationService;
 
     /**
      * GET /api/registrations
