@@ -11,4 +11,6 @@ public interface RepairRequestRepository extends JpaRepository<RepairRequest, In
     List<RepairRequest> findByStudentStudentCode(String studentCode);
     List<RepairRequest> findByRoomId(Integer roomId);
     List<RepairRequest> findByStatus(RepairRequest.RepairStatus status);
+
+    long countByStatus(RepairRequest.RepairStatus status);
 }

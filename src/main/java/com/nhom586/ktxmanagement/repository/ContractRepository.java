@@ -26,4 +26,7 @@ public interface ContractRepository extends JpaRepository<Contract, Integer> {
 
     // Đếm số hợp đồng active trong phòng
     long countByRoomIdAndStatus(Integer roomId, Contract.ContractStatus status);
+
+    // Đếm tổng số hợp đồng theo trạng thái
+    long countByStatus(Contract.ContractStatus status);
 }

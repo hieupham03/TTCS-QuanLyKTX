@@ -4,8 +4,13 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 @Entity
 @Table(name = "students")
+@SQLDelete(sql = "UPDATE students SET is_deleted = true WHERE student_code=?")
+@SQLRestriction("is_deleted=false")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -41,6 +46,9 @@ public class Student {
 
     @Column(nullable = false, length = 100)
     private String email;
+
+    @Column(name = "is_deleted")
+    private boolean isDeleted = false;
 
     // Khai báo Enum Giới tính
     public enum Gender {
