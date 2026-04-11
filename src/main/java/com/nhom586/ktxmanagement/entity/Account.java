@@ -31,4 +31,8 @@ public class Account {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
+
+    @OneToOne(mappedBy = "account")
+    private ForgotPassword forgotPassword;
+
 }

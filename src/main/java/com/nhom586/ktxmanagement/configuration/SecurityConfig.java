@@ -29,7 +29,7 @@ import javax.crypto.spec.SecretKeySpec;
 public class SecurityConfig {
 
     private final String[] PUBLIC_ENDPOINTS = {
-            "/api/auth/login", "/api/registrations", "/api/auth/logout"
+            "/api/auth/login", "/api/registrations", "/api/auth/logout", "/api/forgotPassword/**"
                                                 };
     @Value("${jwt.secret}")
     String signerKey;
