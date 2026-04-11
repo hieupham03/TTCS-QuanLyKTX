@@ -14,7 +14,7 @@ public interface RoomRepository extends JpaRepository<Room, Integer> {
 
     Optional<Room> findRoomByRoomNumber (String roomNumber);
 
-    @Query("SELECT r FROM Room r WHERE r.gender = :gender")
+    @Query("SELECT r FROM Room r WHERE r.roomGender = :gender")
     List<Room> findRoomByGender (String gender);
 
     @Query("SELECT r FROM Room r " +
