@@ -1,11 +1,13 @@
 package com.nhom586.ktxmanagement.controller;
 
 import com.nhom586.ktxmanagement.dto.request.InvoiceStatusUpdateRequest;
+import com.nhom586.ktxmanagement.dto.response.InvoiceDetailResponse;
 import com.nhom586.ktxmanagement.entity.Invoice;
 import com.nhom586.ktxmanagement.service.InvoiceService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -67,7 +69,15 @@ public class InvoiceController {
         }
         return invoiceService.getAllInvoices();
     }
+    @GetMapping("/details")
+    @PreAuthorize("isAuthenticated()")
+    public List<InvoiceDetailResponse> getInvoiceDetails(
+            @RequestParam(required = false) String buildingName,
+            @RequestParam(required = false) String roomNumber,
+            @RequestParam(required = false) String month) {
 
+        return invoiceService.getFullInvoiceDetails(buildingName, roomNumber, month);
+    }
 
     /**
      * GET /api/invoices/{id}
