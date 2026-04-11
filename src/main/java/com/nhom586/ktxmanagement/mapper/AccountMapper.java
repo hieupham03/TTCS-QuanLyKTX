@@ -10,5 +10,5 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = "spring")
 public interface AccountMapper {
     Account toAccount(AccountCreationRequest request);
-    void updateAccount (@MappingTarget Account account, AccountUpdateRequest request);
+    void updateAccount (@MappingTarget  Account account,AccountUpdateRequest request);
 }
