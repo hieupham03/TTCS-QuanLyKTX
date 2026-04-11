@@ -54,7 +54,9 @@ public class InvoiceService {
 
     public List<InvoiceDetailResponse> getFullInvoiceDetails(String buildingName, String roomNumber, String month) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        assert auth != null;
+        if (auth == null) {
+            throw new RuntimeException("Người dùng chưa xác thực");
+        }
         String currentUsername = auth.getName();
         boolean isAdmin = auth.getAuthorities().stream()
                 .anyMatch(a -> Objects.equals(a.getAuthority(), "ROLE_ADMIN"));
