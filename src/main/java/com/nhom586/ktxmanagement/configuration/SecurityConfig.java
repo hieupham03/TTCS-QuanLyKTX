@@ -1,6 +1,9 @@
 package com.nhom586.ktxmanagement.configuration;
 
 
+import lombok.experimental.NonFinal;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -25,9 +28,15 @@ import javax.crypto.spec.SecretKeySpec;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    private final String[] PUBLIC_ENDPOINTS = {"/api/auth/login", "/api/registrations"};
-    protected static final String SIGNER_KEY
-            = "59fbd5522dde4675661e3b3641b4473fd02ae71265e45d0097b02bc6aad29a0a";
+    private final String[] PUBLIC_ENDPOINTS = {
+            "/api/auth/login", "/api/registrations", "/api/auth/logout"
+                                                };
+    @Value("${jwt.secret}")
+    String signerKey;
+
+    @Autowired
+    private CustomJwtDecoder customJwtDecoder;
+
 
     // Bảo mật hệ thống
     @Bean
@@ -43,7 +52,7 @@ public class SecurityConfig {
         // Cần token để mở khoá
         httpSecurity.oauth2ResourceServer(oauth2 ->
                 oauth2.jwt(jwtConfigurer ->
-                        jwtConfigurer.decoder(jwtDecoder())
+                        jwtConfigurer.decoder(customJwtDecoder)
                                 .jwtAuthenticationConverter(jwtAuthenticationConverter())
                 )
         );
@@ -52,15 +61,15 @@ public class SecurityConfig {
     }
 
 
-    @Bean
-    public JwtDecoder jwtDecoder() {
-        SecretKeySpec secretKeySpec = new SecretKeySpec(SIGNER_KEY.getBytes(), "HS512");
-
-        return NimbusJwtDecoder
-                .withSecretKey(secretKeySpec)
-                .macAlgorithm(MacAlgorithm.HS512)
-                .build();
-    }
+//    @Bean
+//    public JwtDecoder jwtDecoder() {
+//        SecretKeySpec secretKeySpec = new SecretKeySpec(signerKey.getBytes(), "HS512");
+//
+//        return NimbusJwtDecoder
+//                .withSecretKey(secretKeySpec)
+//                .macAlgorithm(MacAlgorithm.HS512)
+//                .build();
+//    }
 
 
     // Đổi SCOPE_ thành ROLE_
