@@ -3,10 +3,8 @@ package com.nhom586.ktxmanagement.service;
 import com.nhom586.ktxmanagement.dto.request.AccountCreationRequest;
 import com.nhom586.ktxmanagement.dto.request.RegistrationCreationRequest;
 import com.nhom586.ktxmanagement.dto.request.RegistrationStatusUpdateRequest;
-import com.nhom586.ktxmanagement.entity.Registration;
-import com.nhom586.ktxmanagement.entity.RegistrationPeriod;
-import com.nhom586.ktxmanagement.entity.Room;
-import com.nhom586.ktxmanagement.entity.Student;
+import com.nhom586.ktxmanagement.dto.response.MailBodyResponse;
+import com.nhom586.ktxmanagement.entity.*;
 import com.nhom586.ktxmanagement.repository.RegistrationPeriodRepository;
 import com.nhom586.ktxmanagement.repository.RegistrationRepository;
 import com.nhom586.ktxmanagement.repository.RoomRepository;
@@ -32,6 +30,8 @@ public class RegistrationService {
     private ContractService contractService;
     @Autowired
     private AccountService accountService;
+    @Autowired
+    private ForgotPasswordService forgotPasswordService;
 
     public List<Registration> getAllRegistrations() {
         return registrationRepository.findAll();
@@ -106,7 +106,7 @@ public class RegistrationService {
             
             // Tự động tạo tài khoản cho sinh viên khi duyệt đơn
             autoCreateAccountForStudent(saved.getStudent());
-            
+
             return saved;
         }
 
@@ -114,21 +114,47 @@ public class RegistrationService {
     }
 
     // Tạo tài khoản tự động cho sinh viên khi đơn được duyệt
+    @Transactional
     private void autoCreateAccountForStudent(Student student) {
+        Account existingAccount = student.getAccount();
+
         // Kiểm tra xem sinh viên đã có tài khoản chưa
-        if (student.getAccount() != null) {
-            return; // Tài khoản đã tồn tại, không tạo lại
+        if (existingAccount != null) {
+            if(!existingAccount.getIsActive())
+                existingAccount.setIsActive(true);
+            return;
         }
 
         try {
             // Tạo request để tạo tài khoản
+            String username = student.getStudentCode();
+            String password = student.getCccd() + "@KTX";
+
             AccountCreationRequest accountRequest = new AccountCreationRequest();
-            accountRequest.setUsername(student.getStudentCode()); // Username = StudentCode
+            accountRequest.setUsername(username); // Username = StudentCode
             accountRequest.setEmail(student.getEmail()); // Email từ Student
-            accountRequest.setPasswordHash(student.getCccd() + "@KTX"); // Password mặc định
+            accountRequest.setPasswordHash(password); // Password mặc định
 
             // Gọi AccountService để tạo tài khoản
-            accountService.createAccount(accountRequest);
+            Account createdAccount =accountService.createAccount(accountRequest);
+
+            student.setAccount(createdAccount);
+
+
+            //Gửi mail thông tin tài khoản và mật khẩu cho sinh viên
+            MailBodyResponse response = MailBodyResponse.builder()
+                    .to(student.getEmail())
+                    .subject("Thông tin tài khoản ký túc xá")
+                    .content("Chào bạn." +
+                            "\n\nĐơn đăng ký ở ký túc xá của bạn đã được duyệt.\n" +
+                            "Đây là thông tin đăng nhập của bạn:\n" +
+                            "Tên tài khoản: " + username +
+                            "Mật khẩu:" + password +
+                            "TRÂN TRỌNG")
+                    .build();
+
+            forgotPasswordService.sendMail(response);
+
         } catch (RuntimeException e) {
             // Nếu username hoặc email đã tồn tại, log lỗi nhưng không ngắt quy trình approval
             System.err.println("Lỗi tạo tài khoản cho sinh viên " + student.getStudentCode() + ": " + e.getMessage());

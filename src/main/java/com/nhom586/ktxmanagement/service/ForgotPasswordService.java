@@ -101,7 +101,7 @@ public class ForgotPasswordService {
         return random.nextInt(100000, 999999);
     }
 
-    private void sendMail (MailBodyResponse response) {
+    public void sendMail (MailBodyResponse response) {
         SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
 
         simpleMailMessage.setFrom(emailName);
