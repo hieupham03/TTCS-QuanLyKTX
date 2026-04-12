@@ -10,4 +10,6 @@ import java.util.Optional;
 public interface RoomRepository extends JpaRepository<Room, Integer> {
 
     Optional<Room> findRoomByRoomNumber (String roomNumber);
+
+    long countByStatus(Room.RoomStatus status);
 }

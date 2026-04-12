@@ -1,33 +1,39 @@
 package com.nhom586.ktxmanagement.exception;
 
 
+import com.nhom586.ktxmanagement.dto.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.Collections;
 import java.util.List;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(value = RuntimeException.class)
-    ResponseEntity<String> handlingRuntimeException (RuntimeException exception) {
-
-        return  ResponseEntity.badRequest().body(exception.getMessage());
+    public ResponseEntity<ApiResponse<Void>> handlingRuntimeException (RuntimeException exception) {
+        ApiResponse<Void> apiResponse = ApiResponse.<Void>builder()
+                .code(400)
+                .message(exception.getMessage())
+                .build();
+        return ResponseEntity.badRequest().body(apiResponse);
     }
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
-    ResponseEntity<String> handlingMethodArgumentNotValidException (MethodArgumentNotValidException exception) {
+    public ResponseEntity<ApiResponse<Void>> handlingMethodArgumentNotValidException (MethodArgumentNotValidException exception) {
         StringBuilder message = new StringBuilder();
         List<FieldError> errors = exception.getFieldErrors();
 
         for(FieldError e :errors){
-            message.append(e.getDefaultMessage() + "\n");
+            message.append(e.getDefaultMessage()).append("; ");
         }
 
-        return  ResponseEntity.badRequest().body(message.toString());
+        ApiResponse<Void> apiResponse = ApiResponse.<Void>builder()
+                .code(400)
+                .message(message.toString())
+                .build();
+        return ResponseEntity.badRequest().body(apiResponse);
     }
 }

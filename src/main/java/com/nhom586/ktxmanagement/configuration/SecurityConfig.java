@@ -45,8 +45,19 @@ public class SecurityConfig {
         // Nở khoá tất cả
         httpSecurity.authorizeHttpRequests(request ->
                 request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
-
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+
+                        // Các API mở cho Sinh Viên và Admin cùng truy cập (Xem hóa đơn, tạo đơn, xem lịch sử sửa chữa/đăng ký)
+                        .requestMatchers(HttpMethod.GET, "/api/invoices/**", "/api/repair-requests/**", "/api/registrations/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/repair-requests/**").authenticated()
+
+                        // Các thao tác còn lại (PUT Update Status, Delete, ...) bắt buộc là ADMIN
+                        .requestMatchers("/api/invoices/**", "/api/repair-requests/**", "/api/registrations/**").hasRole("ADMIN")
+
+                        // Toàn bộ các luồng Quản trị khác (Phòng, Sinh viên, Hợp đồng, Dịch vụ, Tài khoản) -> ADMIN
+                        .requestMatchers("/api/rooms/**", "/api/students/**", "/api/contracts/**", "/api/buildings/**", 
+                                "/api/service-metrics/**", "/api/service-prices/**", "/api/accounts/**", "/api/dashboard/**").hasRole("ADMIN")
+
                         .anyRequest().authenticated()
         );
 

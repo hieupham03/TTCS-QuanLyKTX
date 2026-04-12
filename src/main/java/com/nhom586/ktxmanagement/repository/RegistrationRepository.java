@@ -11,4 +11,6 @@ public interface RegistrationRepository extends JpaRepository<Registration, Inte
     List<Registration> findByStudentStudentCode(String studentCode);
 
     boolean existsByPeriodIdAndStudentStudentCode(Integer periodId, String studentCode);
+
+    long countByStatus(Registration.RegistrationStatus status);
 }
