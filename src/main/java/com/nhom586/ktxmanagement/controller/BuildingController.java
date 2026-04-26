@@ -1,13 +1,13 @@
 package com.nhom586.ktxmanagement.controller;
 
+import com.nhom586.ktxmanagement.dto.request.BuildingCreationRequest;
 import com.nhom586.ktxmanagement.dto.request.BuildingUpdateRequest;
 import com.nhom586.ktxmanagement.entity.Building;
-import com.nhom586.ktxmanagement.repository.BuildingRepository;
 import com.nhom586.ktxmanagement.service.BuildingService;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,8 +32,15 @@ public class BuildingController {
         return buildingService.getBuilding(name);
     }
 
+    @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public Building createBuilding(@RequestBody @Valid BuildingCreationRequest request) {
+        return buildingService.createBuilding(request);
+    }
+
     @PutMapping("/{name}")
-    public  Building updateBuilding(@PathVariable("name") String name,@RequestBody BuildingUpdateRequest request) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public  Building updateBuilding(@PathVariable("name") String name,@RequestBody @Valid BuildingUpdateRequest request) {
         return buildingService.updateBuilding(name, request);
     }
 }

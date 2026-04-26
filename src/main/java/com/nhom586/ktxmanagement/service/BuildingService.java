@@ -1,6 +1,7 @@
 package com.nhom586.ktxmanagement.service;
 
 
+import com.nhom586.ktxmanagement.dto.request.BuildingCreationRequest;
 import com.nhom586.ktxmanagement.dto.request.BuildingUpdateRequest;
 import com.nhom586.ktxmanagement.entity.Building;
 import com.nhom586.ktxmanagement.mapper.BuildingMapper;
@@ -19,6 +20,16 @@ public class BuildingService {
     BuildingRepository buildingRepository;
     BuildingMapper buildingMapper;
 
+
+    public Building createBuilding(BuildingCreationRequest request) {
+        if (buildingRepository.findByName(request.getName()).isPresent()) {
+            throw new RuntimeException("Tòa nhà đã tồn tại");
+        }
+
+        Building building = buildingMapper.toBuilding(request);
+
+        return buildingRepository.save(building);
+    }
 
     public List<Building> getBuildings() {
         return buildingRepository.findAll();
