@@ -9,6 +9,8 @@ import AdminLayout from './components/layout/AdminLayout';
 import Dashboard from './pages/admin/AdminDashboard';
 import AccountList from './pages/admin/AccountList';
 import BuildingList from './pages/admin/BuildingList';
+import RoomList from './pages/admin/RoomList';
+import RegistrationPeriods from './pages/admin/RegistrationPeriods';
 
 function App() {
   return (
@@ -27,6 +29,8 @@ function App() {
           <Route index element={<Dashboard />} />
           <Route path="accounts" element={<AccountList />} />
           <Route path="buildings" element={<BuildingList />} />
+          <Route path="rooms" element={<RoomList />} />
+          <Route path="registration-periods" element={<RegistrationPeriods />} />
           {/* Add more admin routes here later */}
         </Route>
 

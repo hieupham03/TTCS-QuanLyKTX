@@ -21,38 +21,45 @@ public class RoomController {
 
     // Tạo phòng mới
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public Room createRoom(@Valid @RequestBody RoomCreationRequest request) {
         return roomService.createRoom(request);
     }
 
     @GetMapping
-    public List<Room> getRoomsByGender(@RequestParam(required = false) Room.RoomGender gender) {
+    public List<Room> getRooms(@RequestParam(required = false) Room.RoomGender gender) {
         if (gender == null) {
             return roomService.getAllRooms();
         }
         return roomService.getRoomsByGender(String.valueOf(gender));
     }
 
-    @GetMapping("/{name}")
+    @GetMapping("/building/{name}")
     public List<Room> getRoomsByBuildingName(@PathVariable("name") String name) {
         return roomService.getRoomsByBuildingName(name);
     }
 
     @GetMapping("/{id}")
-    public Room getRoomById(@Valid @PathVariable Integer id) {
+    public Room getRoomById(@PathVariable Integer id) {
         return roomService.getRoomById(id);
     }
 
-    @GetMapping("number/{roomNumber}")
-    public Room getRoomByRoomNumber(@Valid @PathVariable("roomNumber") String roomNumber) {
+    @GetMapping("/number/{roomNumber}")
+    public Room getRoomByRoomNumber(@PathVariable("roomNumber") String roomNumber) {
         return roomService.getRoomByRoomNumber(roomNumber);
     }
 
     // Chỉnh sửa thông tin phòng theo số hiệu phòng
-    @PutMapping("number/{roomNumber}")
-    public Room updateRoomByRoomNumber(@Valid @PathVariable("roomNumber") String roomNumber,
-            @RequestBody RoomUpdateRequest request) {
+    @PutMapping("/number/{roomNumber}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public Room updateRoomByRoomNumber(@PathVariable("roomNumber") String roomNumber,
+            @Valid @RequestBody RoomUpdateRequest request) {
         return roomService.updateRoom(roomNumber, request);
     }
 
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public void deleteRoom(@PathVariable Integer id) {
+        roomService.deleteRoom(id);
+    }
 }

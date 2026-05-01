@@ -114,4 +114,9 @@ public class RoomService {
         }
     }
 
+    public void deleteRoom(Integer id) {
+        Room room = getRoomById(id);
+        roomRepository.delete(room);
+    }
+
 }
