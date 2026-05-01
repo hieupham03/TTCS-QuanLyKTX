@@ -114,4 +114,20 @@ public class RoomService {
         }
     }
 
+    // Xóa phòng (Soft delete)
+    public void deleteRoom(String roomNumber) {
+        Room room = getRoomByRoomNumber(roomNumber);
+        
+        long activeStudentCount = contractRepository.countByRoomIdAndStatus(
+                room.getId(), 
+                Contract.ContractStatus.ACTIVE
+        );
+        
+        if (activeStudentCount > 0) {
+            throw new RuntimeException("Không thể xóa phòng đang có sinh viên lưu trú.");
+        }
+        
+        roomRepository.delete(room);
+    }
+
 }

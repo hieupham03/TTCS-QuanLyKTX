@@ -16,6 +16,7 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Integer> {
     List<Invoice> findByBillingMonth(String billingMonth);
     Optional<Invoice> findByRoomIdAndBillingMonth(Integer roomId, String billingMonth);
     boolean existsByRoomIdAndBillingMonth(Integer roomId, String billingMonth);
+    Optional<Invoice> findByServiceMetricId(Integer serviceMetricId);
 
     long countByStatus(Invoice.InvoiceStatus status);
     long countByStatusAndBillingMonth(Invoice.InvoiceStatus status, String billingMonth);

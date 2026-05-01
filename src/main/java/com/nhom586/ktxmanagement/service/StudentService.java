@@ -5,6 +5,7 @@ import com.nhom586.ktxmanagement.dto.request.StudentUpdateRequest;
 import com.nhom586.ktxmanagement.entity.Student;
 import com.nhom586.ktxmanagement.mapper.StudentMapper;
 import com.nhom586.ktxmanagement.repository.StudentRepository;
+import com.nhom586.ktxmanagement.repository.AccountRepository;
 import com.nhom586.ktxmanagement.dto.request.StudentCreationRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class StudentService {
     StudentRepository studentRepository;
+    AccountRepository accountRepository;
     StudentMapper studentMapper;
 
     public Student createStudent (StudentCreationRequest request) {
@@ -47,7 +49,11 @@ public class StudentService {
     }
 
     public void  deleteStudent (String studentCode) {
-
+        Student student = getStudent(studentCode);
+        if (student.getAccount() != null) {
+            student.getAccount().setIsActive(false);
+            accountRepository.save(student.getAccount());
+        }
         studentRepository.deleteById(studentCode);
     }
 }

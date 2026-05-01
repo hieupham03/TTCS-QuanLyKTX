@@ -159,4 +159,16 @@ public class ContractController {
     public Contract cancelContract(@PathVariable("id") Integer id) {
         return contractService.cancelContract(id);
     }
+
+    /**
+     * DELETE /api/contracts/{id}
+     * Xóa cứng hợp đồng (Admin).
+     * Dùng khi tạo nhầm hợp đồng.
+     */
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String deleteContract(@PathVariable("id") Integer id) {
+        contractService.deleteContract(id);
+        return "Hợp đồng đã được xóa thành công";
+    }
 }

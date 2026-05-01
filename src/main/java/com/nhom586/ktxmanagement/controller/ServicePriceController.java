@@ -88,4 +88,14 @@ public class ServicePriceController {
     public ServicePrice updateServicePrice(@PathVariable Integer id, @RequestBody ServicePriceRequest request) {
         return servicePriceService.updateServicePrice(id, request);
     }
+
+    /**
+     * DELETE /api/service-prices/{id}
+     * Xóa đơn giá dịch vụ (Admin).
+     */
+    @DeleteMapping("/{id}")
+    public String deleteServicePrice(@PathVariable Integer id) {
+        servicePriceService.deleteServicePrice(id);
+        return "Bảng giá dịch vụ đã được xóa thành công";
+    }
 }

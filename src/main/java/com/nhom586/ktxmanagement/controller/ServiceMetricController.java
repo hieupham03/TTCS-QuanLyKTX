@@ -102,4 +102,15 @@ public class ServiceMetricController {
     public ServiceMetric createServiceMetric(@RequestBody ServiceMetricRequest request) {
         return serviceMetricService.createServiceMetric(request);
     }
+
+    /**
+     * DELETE /api/service-metrics/{id}
+     * Xóa chỉ số dịch vụ (và tự động xóa hóa đơn liên quan).
+     */
+    @DeleteMapping("/{id}")
+    @PostAuthorize("hasRole('ADMIN')")
+    public String deleteServiceMetric(@PathVariable Integer id) {
+        serviceMetricService.deleteServiceMetric(id);
+        return "Chỉ số dịch vụ (và hóa đơn tương ứng) đã được xóa thành công";
+    }
 }

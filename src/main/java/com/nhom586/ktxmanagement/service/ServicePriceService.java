@@ -60,4 +60,11 @@ public class ServicePriceService {
         // Không cho phép đổi type để tránh lộn dữ liệu lịch sử
         return servicePriceRepository.save(servicePrice);
     }
+
+    // Xóa bảng giá dịch vụ
+    @Transactional
+    public void deleteServicePrice(Integer id) {
+        ServicePrice servicePrice = getServicePriceById(id);
+        servicePriceRepository.delete(servicePrice);
+    }
 }

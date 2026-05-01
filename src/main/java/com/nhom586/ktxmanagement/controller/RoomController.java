@@ -55,4 +55,11 @@ public class RoomController {
         return roomService.updateRoom(roomNumber, request);
     }
 
+    // Xóa phòng
+    @DeleteMapping("number/{roomNumber}")
+    public String deleteRoomByRoomNumber(@Valid @PathVariable("roomNumber") String roomNumber) {
+        roomService.deleteRoom(roomNumber);
+        return "Phòng đã được xóa thành công";
+    }
+
 }

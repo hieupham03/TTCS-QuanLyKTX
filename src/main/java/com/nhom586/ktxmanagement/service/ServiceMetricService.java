@@ -110,4 +110,16 @@ public class ServiceMetricService {
 
         return savedMetric;
     }
+
+    @Transactional
+    public void deleteServiceMetric(Integer id) {
+        ServiceMetric metric = getServiceMetricById(id);
+        
+        // Cần xóa Invoice trước vì Invoice phụ thuộc vào ServiceMetric
+        invoiceRepository.findByServiceMetricId(id).ifPresent(invoice -> {
+            invoiceRepository.delete(invoice);
+        });
+        
+        serviceMetricRepository.delete(metric);
+    }
 }

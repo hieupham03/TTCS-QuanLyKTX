@@ -50,7 +50,7 @@ public class StudentController {
         return studentService.updateStudent(studentCode, request);
     }
 
-    @PreAuthorize("hasRole('STUDENT')")
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{studentCode}")
     String DeleteStudent(@PathVariable("studentCode") String studentCode) {
         studentService.deleteStudent(studentCode);

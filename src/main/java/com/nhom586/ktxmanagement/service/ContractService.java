@@ -143,4 +143,11 @@ public class ContractService {
         contract.setStatus(Contract.ContractStatus.CANCELLED);
         return contractRepository.save(contract);
     }
+
+    // Xóa cứng hợp đồng (Hard Delete)
+    @Transactional
+    public void deleteContract(Integer id) {
+        Contract contract = getContractById(id);
+        contractRepository.delete(contract);
+    }
 }
