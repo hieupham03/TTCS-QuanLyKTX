@@ -43,4 +43,9 @@ public class BuildingController {
     public  Building updateBuilding(@PathVariable("name") String name,@RequestBody @Valid BuildingUpdateRequest request) {
         return buildingService.updateBuilding(name, request);
     }
+    @DeleteMapping("/{name}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public void deleteBuilding(@PathVariable("name") String name) {
+        buildingService.deleteBuilding(name);
+    }
 }

@@ -49,4 +49,9 @@ public class BuildingService {
         return buildingRepository.save(building);
     }
 
+    public void deleteBuilding(String name) {
+        Building building = getBuilding(name);
+        buildingRepository.delete(building);
+    }
+
 }

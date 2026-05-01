@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Legacy HTML Pages
+src/main/resources/pages/*.html
