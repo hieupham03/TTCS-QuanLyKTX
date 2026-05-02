@@ -67,14 +67,15 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         // Nở khoá tất cả
         httpSecurity.authorizeHttpRequests(request ->
-                request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS_POST).permitAll()
+                request.requestMatchers(HttpMethod.GET, "/api/contracts/student/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS_POST).permitAll()
                         .requestMatchers(HttpMethod.GET, PUBLIC_ENDPOINTS_GET).permitAll()
 
                         // Các API mở cho Sinh Viên và Admin cùng truy cập (Xem hóa đơn, tạo đơn, xem lịch sử sửa chữa/đăng ký)
                         .requestMatchers(HttpMethod.GET, PRIVATE_ENDPOINTS_GET).authenticated()
                         .requestMatchers(HttpMethod.POST, PRIVATE_ENDPOINTS_POST).authenticated()
 
-                        // Các thao tác còn lại (PUT Update Status, Delete, ...) bắt buộc là ADMIN, Toàn bộ các luồng Quản trị khác (Phòng, Sinh viên, Hợp đồng, Dịch vụ, Tài khoản) -> ADMIN
+                        // Các thao tác còn lại (PUT Update Status, Delete, ...) bắt buộc là ADMIN
                         .requestMatchers(ADMIN_ENDPOINT).hasRole("ADMIN")
 
                         .anyRequest().authenticated()

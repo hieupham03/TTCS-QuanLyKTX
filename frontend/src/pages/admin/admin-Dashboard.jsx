@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { 
     CalendarDays, 
-    Plus, 
     DoorOpen, 
     CheckCircle2, 
     Users, 
@@ -20,7 +19,22 @@ const Dashboard = () => {
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [billingMonth, setBillingMonth] = useState('2024-10'); // Or generate dynamically
+    
+    // Generate dynamic billing month options (current month and previous 5 months)
+    const generateMonthOptions = () => {
+        const options = [];
+        const date = new Date();
+        for (let i = 0; i < 6; i++) {
+            const d = new Date(date.getFullYear(), date.getMonth() - i, 1);
+            const value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+            const label = `Tháng ${String(d.getMonth() + 1).padStart(2, '0')} ${d.getFullYear()}`;
+            options.push({ value, label });
+        }
+        return options;
+    };
+    
+    const monthOptions = generateMonthOptions();
+    const [billingMonth, setBillingMonth] = useState(monthOptions[0].value);
 
     useEffect(() => {
         const fetchDashboardData = async () => {
@@ -89,22 +103,19 @@ const Dashboard = () => {
                     <h1 className="text-4xl font-extrabold tracking-tight text-on-surface font-headline leading-none">Tổng quan Ký túc xá</h1>
                 </div>
                 <div className="flex items-center gap-3">
-                    <div className="bg-white border border-outline-variant rounded-lg px-3 py-2 flex items-center gap-2">
-                        <CalendarDays className="text-outline w-5 h-5" />
+                    <div className="bg-white border border-outline-variant rounded-lg px-3 py-2 flex items-center gap-2 shadow-sm">
+                        <CalendarDays className="text-blue-600 w-5 h-5" />
                         <select 
                             className="text-sm font-semibold border-none bg-transparent focus:ring-0 cursor-pointer p-0 pr-8 outline-none" 
                             value={billingMonth}
                             onChange={(e) => setBillingMonth(e.target.value)}
                         >
-                            <option value="2024-10">Tháng 10 2024</option>
-                            <option value="2024-09">Tháng 09 2024</option>
-                            <option value="2024-08">Tháng 08 2024</option>
+                            {monthOptions.map(opt => (
+                                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                            ))}
                         </select>
                     </div>
-                    <button className="bg-gradient-to-br from-blue-600 to-blue-500 flex items-center gap-2 px-6 py-2.5 rounded shadow-lg shadow-primary/20 text-sm font-bold text-white hover:scale-[1.02] active:scale-95 transition-all">
-                        <Plus className="w-5 h-5" />
-                        Đăng ký mới
-                    </button>
+
                 </div>
             </div>
 

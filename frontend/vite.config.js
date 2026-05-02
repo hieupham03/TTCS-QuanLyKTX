@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:8080/managektx',
+        target: 'http://localhost:8081/managektx',
         changeOrigin: true,
         secure: false,
       }

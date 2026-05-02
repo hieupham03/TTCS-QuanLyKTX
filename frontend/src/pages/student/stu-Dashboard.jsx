@@ -46,7 +46,9 @@ const StudentDashboard = () => {
 
             // Fetch Active Contract
             const contractRes = await axios.get(`/api/contracts/student/${studentCode}`, { headers });
+            console.log("Student Contracts:", contractRes.data);
             const active = contractRes.data.find(c => c.status === 'ACTIVE');
+            console.log("Active Contract:", active);
             setActiveContract(active);
 
             // Fetch Recent Invoices (if has room)
@@ -116,7 +118,7 @@ const StudentDashboard = () => {
                             </div>
                             <div className="flex justify-between items-center pb-3 border-b border-slate-50">
                                 <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Số điện thoại</span>
-                                <span className="text-sm font-bold text-slate-900">{studentData?.phoneNumber}</span>
+                                <span className="text-sm font-bold text-slate-900">{studentData?.phone}</span>
                             </div>
                         </div>
                     </div>
@@ -137,7 +139,10 @@ const StudentDashboard = () => {
                                         <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">• {activeContract.room.building.name}</span>
                                     </div>
                                     <h2 className="text-5xl font-black tracking-tighter">Phòng {activeContract.room.roomNumber}</h2>
-                                    <p className="text-slate-400 mt-4 max-w-sm">Hợp đồng của bạn có hiệu lực từ {new Date(activeContract.startDate).toLocaleDateString('vi-VN')} đến {new Date(activeContract.endDate).toLocaleDateString('vi-VN')}.</p>
+                                    <p className="text-slate-400 mt-4 max-w-sm">
+                                        Hợp đồng có hiệu lực từ {activeContract.period?.stayStartDate ? new Date(activeContract.period.stayStartDate).toLocaleDateString('vi-VN') : '...'} 
+                                        đến {activeContract.period?.stayEndDate ? new Date(activeContract.period.stayEndDate).toLocaleDateString('vi-VN') : '...'}.
+                                    </p>
                                 </div>
                                 <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/10 min-w-[200px]">
                                     <div className="flex items-center gap-2 mb-4 text-blue-400">
@@ -164,9 +169,6 @@ const StudentDashboard = () => {
                             </div>
                             <h2 className="text-2xl font-bold">Bạn chưa có phòng ở</h2>
                             <p className="text-slate-400 mt-2 max-w-xs">Hãy đăng ký phòng trong các đợt mở đăng ký để bắt đầu cuộc sống tại ký túc xá.</p>
-                            <Link to="/student/register" className="mt-6 px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold transition-all">
-                                Đăng ký ngay
-                            </Link>
                         </div>
                     )}
                     <Building2 size={240} className="absolute -right-20 -bottom-20 text-white/5 pointer-events-none" />

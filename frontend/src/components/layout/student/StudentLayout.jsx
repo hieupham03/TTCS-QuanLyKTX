@@ -11,6 +11,23 @@ const StudentLayout = () => {
         return <Navigate to="/login" replace />;
     }
 
+    try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        
+        const decoded = JSON.parse(jsonPayload);
+        if (decoded.scope !== 'STUDENT') {
+            // Not a student, redirect to admin or home
+            return <Navigate to="/admin" replace />;
+        }
+    } catch (e) {
+        console.error("Auth error in StudentLayout", e);
+        return <Navigate to="/login" replace />;
+    }
+
     return (
         <div className="bg-[#F8FAFC] font-body text-slate-900 antialiased min-h-screen">
             <Header />

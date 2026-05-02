@@ -10,9 +10,27 @@ import {
 } from 'lucide-react';
 
 const AdminLayout = () => {
-    // Basic authentication check (can be improved later)
     const token = localStorage.getItem('token');
+    
+    // Check if token exists and has ADMIN role
     if (!token) {
+        return <Navigate to="/login" replace />;
+    }
+
+    try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        
+        const decoded = JSON.parse(jsonPayload);
+        if (decoded.scope !== 'ADMIN') {
+            // Not an admin, redirect to student dashboard or home
+            return <Navigate to="/student" replace />;
+        }
+    } catch (e) {
+        console.error("Auth error in AdminLayout", e);
         return <Navigate to="/login" replace />;
     }
 

@@ -7,7 +7,8 @@ import {
     User,
     LogOut,
     Building2,
-    CalendarDays
+    CalendarDays,
+    FileText
 } from 'lucide-react';
 
 const StudentSidebar = () => {
@@ -21,6 +22,8 @@ const StudentSidebar = () => {
 
     const navItems = [
         { path: '/student', icon: <LayoutDashboard size={20} />, label: 'Bảng điều khiển' },
+        { path: '/student/room', icon: <Building2 size={20} />, label: 'Thông tin phòng' },
+        { path: '/student/contracts', icon: <FileText size={20} />, label: 'Lịch sử hợp đồng' },
         { path: '/student/register', icon: <CalendarDays size={20} />, label: 'Đăng ký phòng' },
         { path: '/student/invoices', icon: <ReceiptText size={20} />, label: 'Hóa đơn dịch vụ' },
         { path: '/student/repairs', icon: <Wrench size={20} />, label: 'Yêu cầu sửa chữa' },

@@ -71,4 +71,19 @@ public class AccountService {
         return accountRepository.save(account);
 
     }
+
+    public void changePassword(com.nhom586.ktxmanagement.dto.request.ChangePasswordRequest request, String username) {
+        Account account = getAccountByUsername(username);
+
+        if (!passwordEncoder.matches(request.getOldPassword(), account.getPasswordHash())) {
+            throw new RuntimeException("Mật khẩu cũ không chính xác");
+        }
+
+        if (!request.getPassword().equals(request.getRepeatPassword())) {
+            throw new RuntimeException("Mật khẩu nhập lại không khớp");
+        }
+
+        account.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+        accountRepository.save(account);
+    }
 }

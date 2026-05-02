@@ -38,13 +38,13 @@ public class StudentController {
         return studentService.getStudents();
     }
 
-    @PostAuthorize("hasRole('ADMIN') or returnObject.result.username == authentication.name")
+    @PostAuthorize("hasRole('ADMIN') or returnObject.studentCode == authentication.name")
     @GetMapping("/{studentCode}")
     Student GetStudent (@PathVariable("studentCode") String studentCode){
         return studentService.getStudent(studentCode);
     }
 
-    @PreAuthorize("hasRole('ADMIN') or #studentCode == authentication.principal.claims['studentCode']")
+    @PreAuthorize("hasRole('ADMIN') or #studentCode == authentication.name")
     @PutMapping("/{studentCode}")
     Student UpdateStudent(@Valid  @PathVariable("studentCode") String studentCode, @RequestBody StudentUpdateRequest request) {
         return studentService.updateStudent(studentCode, request);

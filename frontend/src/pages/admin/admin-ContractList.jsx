@@ -216,6 +216,8 @@ export default function AdminContractList() {
                                 {[
                                     ['MSSV', detail.student?.studentCode],
                                     ['Sinh viên', detail.student?.fullName],
+                                    ['CCCD', detail.student?.cccd],
+                                    ['Giới tính', detail.student?.gender === 'MALE' ? 'Nam' : 'Nữ'],
                                     ['Phòng', `P.${detail.room?.roomNumber} — Tòa ${detail.room?.building?.name}`],
                                     ['Học kỳ', detail.period?.semester],
                                     ['Giá phòng/tháng', fmtMoney(detail.roomPrice)],

@@ -226,17 +226,37 @@ const Registration = () => {
                                 <div className="p-6 space-y-6">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div>
-                                            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Chọn Tòa nhà</label>
-                                            <select required name="buildingName" value={formData.buildingName} onChange={handleChange} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all">
-                                                <option value="">Chọn tòa nhà</option>
-                                                {buildings.map(b => <option key={b.name} value={b.name}>{b.name}</option>)}
+                                            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Chọn Tòa nhà (Nguyện vọng)</label>
+                                            <select name="buildingName" value={formData.buildingName} onChange={handleChange} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                                                <option value="">Không bắt buộc (Tự động sắp xếp)</option>
+                                                {buildings.map(b => (
+                                                    <option key={b.name} value={b.name}>
+                                                        {b.name} — {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(b.roomPrice)}
+                                                    </option>
+                                                ))}
                                             </select>
+                                            {formData.buildingName && (
+                                                <div className="mt-3 p-3 bg-blue-50 border border-blue-100 rounded-xl flex items-start gap-3">
+                                                    <Info size={16} className="text-blue-600 mt-0.5 flex-shrink-0" />
+                                                    <div>
+                                                        <p className="text-[11px] font-bold text-blue-900 leading-tight uppercase tracking-tight">Thông tin giá tòa {formData.buildingName}</p>
+                                                        <p className="text-sm font-black text-blue-600 mt-0.5">
+                                                            {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(buildings.find(b => b.name === formData.buildingName)?.roomPrice || 0)}
+                                                            <span className="text-[10px] font-medium text-blue-400 ml-1">/ tháng</span>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
                                         <div>
-                                            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Chọn Phòng (Nguyện vọng)</label>
+                                            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Chọn Phòng (Nếu có)</label>
                                             <select name="requestedRoomId" value={formData.requestedRoomId} onChange={handleChange} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all" disabled={!formData.buildingName}>
-                                                <option value="">Không bắt buộc</option>
-                                                {rooms.map(r => <option key={r.id} value={r.id}>Phòng {r.roomNumber} ({r.gender === 'MALE' ? 'Nam' : 'Nữ'})</option>)}
+                                                <option value="">Để trống để Admin tự xếp phòng</option>
+                                                {rooms.map(r => (
+                                                    <option key={r.id} value={r.id}>
+                                                        Phòng {r.roomNumber} ({r.gender === 'MALE' ? 'Nam' : 'Nữ'}) — {r.status === 'AVAILABLE' ? 'Còn chỗ' : 'Hết chỗ'}
+                                                    </option>
+                                                ))}
                                             </select>
                                         </div>
                                     </div>

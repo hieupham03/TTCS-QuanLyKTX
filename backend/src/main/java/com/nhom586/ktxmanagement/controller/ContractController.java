@@ -67,9 +67,11 @@ public class ContractController {
      * Dùng khi: Sinh viên xem lịch sử hợp đồng; Admin tra cứu sinh viên đang ở phòng nào.
      * Gợi ý FE: Lọc ra bản ghi có status = ACTIVE để hiển thị "Phòng hiện tại".
      */
-    @PreAuthorize("hasRole('ADMIN') or #studentCode == authentication.name")
+    @PreAuthorize("hasRole('ADMIN') or #studentCode.equalsIgnoreCase(authentication.name)")
     @GetMapping("/student/{studentCode}")
     public List<Contract> getContractsByStudent(@PathVariable("studentCode") String studentCode) {
+        System.out.println("Debug - studentCode: " + studentCode);
+        System.out.println("Debug - authName: " + org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName());
         return contractService.getContractsByStudent(studentCode);
     }
 

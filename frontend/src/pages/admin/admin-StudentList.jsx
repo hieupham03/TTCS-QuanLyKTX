@@ -12,6 +12,16 @@ const getColor = (name = '') => COLORS[name.charCodeAt(0) % COLORS.length];
 const fmtDate = (d) => d ? new Date(d).toLocaleDateString('vi-VN') : '--';
 const getToken = () => ({ headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
 
+const InputField = ({ label, name, type = 'text', required, placeholder, value, onChange, disabled }) => (
+    <div>
+        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">{label}</label>
+        <input type={type} name={name} required={required} placeholder={placeholder}
+            value={value} onChange={onChange} disabled={disabled}
+            className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-slate-900 disabled:opacity-60 disabled:cursor-not-allowed"
+        />
+    </div>
+);
+
 const EMPTY_FORM = { studentCode: '', cccd: '', fullName: '', gender: 'MALE', dob: '', className: '', phone: '', email: '' };
 
 const PAGE_SIZE = 10;
@@ -130,15 +140,6 @@ export default function AdminStudentList() {
         }
     };
 
-    const InputField = ({ label, name, type = 'text', required, placeholder, value, onChange, disabled }) => (
-        <div>
-            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">{label}</label>
-            <input type={type} name={name} required={required} placeholder={placeholder}
-                value={value} onChange={onChange} disabled={disabled}
-                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-slate-900 disabled:opacity-60 disabled:cursor-not-allowed"
-            />
-        </div>
-    );
 
     return (
         <div className="p-8 lg:p-12 max-w-7xl mx-auto w-full">

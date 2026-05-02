@@ -50,4 +50,11 @@ public class AccountController {
         return accountService.updateAccount(request, username);
     }
 
+    @PostMapping("/change-password")
+    public String changePassword(@RequestBody @Valid com.nhom586.ktxmanagement.dto.request.ChangePasswordRequest request) {
+        String username = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
+        accountService.changePassword(request, username);
+        return "Đổi mật khẩu thành công";
+    }
+
 }

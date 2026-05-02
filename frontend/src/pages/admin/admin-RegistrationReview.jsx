@@ -51,9 +51,11 @@ export default function RegistrationReview() {
                 axios.get('/api/registrations', getToken()),
                 axios.get('/api/buildings', getToken()),
             ]);
+            console.log("Admin - Registrations:", regRes.data);
             setRegistrations(regRes.data.sort((a, b) => b.id - a.id));
             setBuildings(buildRes.data);
-        } catch {
+        } catch (err) {
+            console.error("Error fetching registrations:", err);
             setError('Không thể tải dữ liệu. Vui lòng thử lại.');
         } finally {
             setLoading(false);
@@ -166,7 +168,10 @@ export default function RegistrationReview() {
                             className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none"
                         />
                     </div>
-                    <span className="text-xs font-semibold text-slate-400">{filtered.length} đơn</span>
+                    <div className="flex flex-col items-end gap-0.5">
+                        <span className="text-xs font-semibold text-slate-900">{filtered.length} đơn hiển thị</span>
+                        <span className="text-[10px] font-medium text-slate-400">Tổng từ máy chủ: {registrations.length} đơn</span>
+                    </div>
                 </div>
 
                 {loading ? (
@@ -246,6 +251,8 @@ export default function RegistrationReview() {
                                 {[
                                     ['MSSV', selected.student?.studentCode],
                                     ['Họ tên', selected.student?.fullName],
+                                    ['CCCD', selected.student?.cccd],
+                                    ['Giới tính', selected.student?.gender === 'MALE' ? 'Nam' : 'Nữ'],
                                     ['Email', selected.student?.email],
                                     ['Lớp', selected.student?.className],
                                     ['SĐT', selected.student?.phone],
