@@ -10,6 +10,7 @@ import com.nhom586.ktxmanagement.repository.RegistrationRepository;
 import com.nhom586.ktxmanagement.repository.RoomRepository;
 import com.nhom586.ktxmanagement.repository.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +33,8 @@ public class RegistrationService {
     private AccountService accountService;
     @Autowired
     private ForgotPasswordService forgotPasswordService;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public List<Registration> getAllRegistrations() {
         return registrationRepository.findAll();
@@ -122,20 +125,28 @@ public class RegistrationService {
         if (existingAccount != null) {
             if(!existingAccount.getIsActive())
                 existingAccount.setIsActive(true);
+            MailBodyResponse response = MailBodyResponse.builder()
+                    .to(student.getEmail())
+                    .subject("Thông tin tài khoản ký túc xá")
+                    .content("Chào bạn," + student.getFullName() +
+                            "\n\nChúng tôi xin thông báo rằng đơn đăng ký ở ký túc xá của bạn đã được phê duyệt.\n" +
+                            "Bạn có thể sử dụng tài khoản đã được cấp để đăng nhập vào hệ thống.\n\n" +
+                            "Nếu cần hỗ trợ thêm, vui lòng liên hệ với ban quản lý ký túc xá.\n\n" +
+                            "Trân trọng!")
+                    .build();
             return;
         }
 
         try {
-            // Tạo request để tạo tài khoản
             String username = student.getStudentCode();
             String password = student.getCccd() + "@KTX";
 
             AccountCreationRequest accountRequest = new AccountCreationRequest();
-            accountRequest.setUsername(username); // Username = StudentCode
-            accountRequest.setEmail(student.getEmail()); // Email từ Student
-            accountRequest.setPasswordHash(password); // Password mặc định
+            accountRequest.setUsername(username);
+            accountRequest.setEmail(student.getEmail());
+            accountRequest.setPasswordHash(passwordEncoder.encode(password));
 
-            // Gọi AccountService để tạo tài khoản
+            //tạo tài khoản
             Account createdAccount =accountService.createAccount(accountRequest);
 
             student.setAccount(createdAccount);
@@ -145,8 +156,8 @@ public class RegistrationService {
             MailBodyResponse response = MailBodyResponse.builder()
                     .to(student.getEmail())
                     .subject("Thông tin tài khoản ký túc xá")
-                    .content("Chào bạn." +
-                            "\n\nĐơn đăng ký ở ký túc xá của bạn đã được duyệt.\n" +
+                    .content("Chào bạn, " + student.getFullName() +
+                            "\n\nChúng tôi xin thông báo rằng đơn đăng ký ở ký túc xá của bạn đã được phê duyệt.\n" +
                             "Đây là thông tin đăng nhập của bạn:\n" +
                             "Tên tài khoản: " + username +
                             "Mật khẩu:" + password +
@@ -156,7 +167,6 @@ public class RegistrationService {
             forgotPasswordService.sendMail(response);
 
         } catch (RuntimeException e) {
-            // Nếu username hoặc email đã tồn tại, log lỗi nhưng không ngắt quy trình approval
             System.err.println("Lỗi tạo tài khoản cho sinh viên " + student.getStudentCode() + ": " + e.getMessage());
         }
     }
