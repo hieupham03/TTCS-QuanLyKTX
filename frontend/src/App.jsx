@@ -18,6 +18,10 @@ import InvoiceList from './pages/admin/admin-InvoiceList';
 import RepairRequestList from './pages/admin/admin-RepairRequestList';
 import ServicePriceList from './pages/admin/admin-ServicePriceList';
 
+// Student Pages
+import StudentLayout from './components/layout/student/StudentLayout';
+import StudentDashboard from './pages/student/stu-Dashboard';
+
 function App() {
   return (
     <Router>
@@ -44,6 +48,12 @@ function App() {
           <Route path="repairs" element={<RepairRequestList />} />
           <Route path="service-prices" element={<ServicePriceList />} />
           {/* Add more admin routes here later */}
+        </Route>
+
+        {/* Student Routes */}
+        <Route path="/student" element={<StudentLayout />}>
+          <Route index element={<StudentDashboard />} />
+          {/* Add more student routes here: invoices, repairs, profile */}
         </Route>
 
         {/* Fallback */}

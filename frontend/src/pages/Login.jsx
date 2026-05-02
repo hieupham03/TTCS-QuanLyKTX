@@ -25,9 +25,36 @@ const Login = () => {
             };
             const response = await axios.post('/api/auth/login', payload);
             if (response.data.token) {
-                localStorage.setItem('token', response.data.token);
-                // Navigate to dashboard
-                window.location.href = '/admin'; 
+                const token = response.data.token;
+                localStorage.setItem('token', token);
+                
+                // Parse JWT payload to get role and studentCode
+                try {
+                    const base64Url = token.split('.')[1];
+                    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                    const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                    }).join(''));
+                    
+                    const decoded = JSON.parse(jsonPayload);
+                    const role = decoded.scope; // scope contains the role name
+                    const studentCode = decoded.sub; // subject contains the username/studentCode
+
+                    localStorage.setItem('studentCode', studentCode);
+
+                    // Navigate based on role
+                    if (role === 'ADMIN') {
+                        window.location.href = '/admin';
+                    } else if (role === 'STUDENT') {
+                        window.location.href = '/student';
+                    } else {
+                        // Default fallback
+                        window.location.href = '/';
+                    }
+                } catch (parseError) {
+                    console.error("Error parsing JWT:", parseError);
+                    window.location.href = '/';
+                }
             } else {
                 setError('Tên đăng nhập hoặc mật khẩu không chính xác.');
             }
