@@ -6,11 +6,17 @@ import ForgotPassword from './pages/ForgotPassword';
 import OTPVerify from './pages/OTPVerify';
 import ResetPassword from './pages/ResetPassword';
 import AdminLayout from './components/layout/AdminLayout';
-import Dashboard from './pages/admin/AdminDashboard';
-import AccountList from './pages/admin/AccountList';
-import BuildingList from './pages/admin/BuildingList';
-import RoomList from './pages/admin/RoomList';
-import RegistrationPeriods from './pages/admin/RegistrationPeriods';
+import Dashboard from './pages/admin/admin-Dashboard';
+import AccountList from './pages/admin/admin-AccountList';
+import BuildingList from './pages/admin/admin-BuildingList';
+import RoomList from './pages/admin/admin-RoomList';
+import RegistrationPeriods from './pages/admin/admin-RegistrationPeriods';
+import RegistrationReview from './pages/admin/admin-RegistrationReview';
+import StudentList from './pages/admin/admin-StudentList';
+import ContractList from './pages/admin/admin-ContractList';
+import InvoiceList from './pages/admin/admin-InvoiceList';
+import RepairRequestList from './pages/admin/admin-RepairRequestList';
+import ServicePriceList from './pages/admin/admin-ServicePriceList';
 
 function App() {
   return (
@@ -31,6 +37,12 @@ function App() {
           <Route path="buildings" element={<BuildingList />} />
           <Route path="rooms" element={<RoomList />} />
           <Route path="registration-periods" element={<RegistrationPeriods />} />
+          <Route path="registrations" element={<RegistrationReview />} />
+          <Route path="students" element={<StudentList />} />
+          <Route path="contracts" element={<ContractList />} />
+          <Route path="invoices" element={<InvoiceList />} />
+          <Route path="repairs" element={<RepairRequestList />} />
+          <Route path="service-prices" element={<ServicePriceList />} />
           {/* Add more admin routes here later */}
         </Route>
 

@@ -35,7 +35,8 @@ public class SecurityConfig {
 
     private final String[] PUBLIC_ENDPOINTS_GET = {
             "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",
-            "/api/buildings/**", "/api/rooms/**"
+            "/api/buildings/**", "/api/rooms/**", 
+            "/api/registration-periods", "/api/registration-periods/**"
     };
 
     private final String[] PRIVATE_ENDPOINTS_POST = {

@@ -8,6 +8,7 @@ import {
     CalendarDays,
     ClipboardList, 
     ReceiptText, 
+    FileText,
     Wrench, 
     Settings, 
     LogOut 
@@ -29,7 +30,9 @@ const Sidebar = () => {
         { path: '/admin/rooms', icon: <DoorOpen size={20} />, label: 'Quản lý Phòng' },
         { path: '/admin/registration-periods', icon: <CalendarDays size={20} />, label: 'Đợt đăng ký KTX' },
         { path: '/admin/registrations', icon: <ClipboardList size={20} />, label: 'Duyệt đơn đăng ký' },
+        { path: '/admin/contracts', icon: <FileText size={20} />, label: 'Quản lý Hợp đồng' },
         { path: '/admin/invoices', icon: <ReceiptText size={20} />, label: 'Hóa đơn & Dịch vụ' },
+        { path: '/admin/service-prices', icon: <Settings size={20} />, label: 'Cấu hình đơn giá' },
         { path: '/admin/repairs', icon: <Wrench size={20} />, label: 'Yêu cầu sửa chữa' },
         { path: '/admin/settings', icon: <Settings size={20} />, label: 'Cài đặt' },
     ];

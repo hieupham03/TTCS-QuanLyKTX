@@ -1,229 +1,261 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Building2, User, School, BedDouble, ArrowRight, Menu } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { 
+    Building2, User, School, BedDouble, ArrowRight, 
+    AlertCircle, CheckCircle2, Loader2, Info
+} from 'lucide-react';
 
 const Registration = () => {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
-        full_name: '',
-        student_code: '',
+        fullName: '',
+        studentCode: '',
         cccd: '',
         gender: '',
         dob: '',
         email: '',
         phone: '',
-        class_name: '',
-        building: '',
-        requested_room: '',
+        className: '',
+        buildingName: '',
+        requestedRoomId: '',
         note: ''
     });
+
+    const [activePeriod, setActivePeriod] = useState(null);
+    const [buildings, setBuildings] = useState([]);
+    const [rooms, setRooms] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [submitting, setSubmitting] = useState(false);
+    const [message, setMessage] = useState({ type: '', text: '' });
+
+    useEffect(() => {
+        const initData = async () => {
+            try {
+                // 1. Lấy đợt đăng ký đang mở
+                const periodRes = await axios.get('/api/registration-periods');
+                console.log("Periods fetched:", periodRes.data); // Debug log
+                
+                const periods = Array.isArray(periodRes.data) ? periodRes.data : [];
+                const openPeriod = periods.find(p => p.status?.toUpperCase() === 'OPEN');
+                
+                if (openPeriod) {
+                    setActivePeriod(openPeriod);
+                    // 2. Chỉ lấy danh sách tòa nhà nếu có đợt mở
+                    const buildRes = await axios.get('/api/buildings');
+                    setBuildings(buildRes.data || []);
+                } else {
+                    console.warn("No OPEN period found in:", periods);
+                }
+            } catch (error) {
+                console.error("Lỗi tải dữ liệu ban đầu:", error.response || error);
+                const errorMsg = error.response?.status === 401 || error.response?.status === 403
+                    ? 'Lỗi phân quyền: Máy chủ từ chối truy cập công khai.'
+                    : 'Không thể kết nối đến máy chủ. Vui lòng thử lại sau.';
+                setMessage({ type: 'error', text: errorMsg });
+            } finally {
+                setLoading(false);
+            }
+        };
+        initData();
+    }, []);
+
+    // Load phòng khi chọn tòa nhà
+    useEffect(() => {
+        if (formData.buildingName) {
+            axios.get(`/api/rooms/building/${formData.buildingName}`)
+                .then(res => setRooms(res.data || []))
+                .catch(err => console.error("Lỗi tải danh sách phòng:", err));
+        } else {
+            setRooms([]);
+        }
+    }, [formData.buildingName]);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // TODO: Call API to submit registration
-        console.log("Submitting:", formData);
-        alert("Đã gửi đơn đăng ký!");
+        if (!activePeriod) return;
+
+        setSubmitting(true);
+        setMessage({ type: '', text: '' });
+
+        try {
+            // Bước 1: Tạo/Cập nhật hồ sơ sinh viên
+            await axios.post('/api/students', {
+                studentCode: formData.studentCode,
+                cccd: formData.cccd,
+                fullName: formData.fullName,
+                gender: formData.gender,
+                dob: formData.dob,
+                className: formData.className,
+                phone: formData.phone,
+                email: formData.email
+            });
+
+            // Bước 2: Gửi đơn đăng ký
+            await axios.post('/api/registrations', {
+                periodId: activePeriod.id,
+                studentCode: formData.studentCode,
+                requestType: 'NEW_REGISTER',
+                requestedRoomId: formData.requestedRoomId || null,
+                note: formData.note
+            });
+
+            setMessage({ type: 'success', text: 'Đơn đăng ký của bạn đã được gửi thành công! Admin sẽ duyệt và phản hồi sớm.' });
+            setTimeout(() => navigate('/'), 5000);
+        } catch (error) {
+            const errorMsg = error.response?.data?.message || "Đã có lỗi xảy ra. Vui lòng kiểm tra lại thông tin.";
+            setMessage({ type: 'error', text: errorMsg });
+        } finally {
+            setSubmitting(false);
+        }
     };
 
+    if (loading) return (
+        <div className="h-screen flex items-center justify-center bg-slate-50">
+            <Loader2 className="animate-spin text-blue-600 w-10 h-10" />
+        </div>
+    );
+
     return (
-        <div className="bg-surface text-on-surface font-body antialiased min-h-screen flex flex-col">
-            {/* TopNavBar */}
-            <header className="bg-white/80 backdrop-blur-xl font-inter tracking-tight top-0 sticky z-50 shadow-sm border-b border-black/5">
+        <div className="bg-slate-50 text-slate-900 font-body antialiased min-h-screen flex flex-col">
+            <header className="bg-white/80 backdrop-blur-xl sticky top-0 z-50 shadow-sm border-b border-slate-200">
                 <div className="flex justify-between items-center w-full px-6 py-4 max-w-7xl mx-auto">
                     <Link to="/" className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded bg-primary flex items-center justify-center">
+                        <div className="w-8 h-8 rounded bg-blue-600 flex items-center justify-center">
                             <Building2 className="text-white" size={18} />
                         </div>
                         <span className="text-xl font-bold tracking-tighter text-slate-900">PTIT - KTX</span>
                     </Link>
-                    {/* Removed unused static navigation links */}
                 </div>
             </header>
 
-            {/* Main Content */}
-            <main className="flex-grow w-full max-w-4xl mx-auto px-4 py-12 md:py-16">
-                {/* Header Section */}
-                <div className="mb-12 text-center md:text-left">
-                    <h1 className="text-3xl md:text-4xl font-headline font-bold tracking-tight text-on-surface mb-4">Đăng Ký Lưu Trú Lần Đầu</h1>
-                    <p className="text-lg text-on-surface-variant max-w-2xl">
-                        Đăng ký để được sắp xếp chỗ ở tại KTX. Vui lòng cung cấp thông tin chính xác theo giấy tờ tùy thân của bạn.
-                    </p>
-                </div>
-
-                {/* Registration Form */}
-                <form onSubmit={handleSubmit} className="space-y-8">
-                    
-                    {/* Personal Information Card */}
-                    <div className="bg-white rounded-lg overflow-hidden shadow-[0_12px_32px_-4px_rgba(25,28,29,0.06)] border border-outline-variant/30">
-                        <div className="bg-surface-container-high px-6 py-4 border-b border-outline-variant/10">
-                            <h2 className="text-lg font-headline font-semibold text-on-surface flex items-center gap-2">
-                                <User className="text-primary" size={20} />
-                                Thông Tin Cá Nhân
-                            </h2>
+            <main className="flex-grow w-full max-w-4xl mx-auto px-4 py-12">
+                {!activePeriod ? (
+                    <div className="bg-amber-50 border border-amber-200 rounded-2xl p-8 text-center shadow-sm">
+                        <div className="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <AlertCircle size={32} />
                         </div>
-                        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="col-span-1 md:col-span-2">
-                                <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Họ và tên</label>
-                                <input 
-                                    className="w-full bg-surface-container-highest border-b-2 border-transparent focus:border-primary focus:ring-0 rounded-t-lg px-4 py-3 text-sm text-on-surface transition-colors outline-none" 
-                                    name="full_name" value={formData.full_name} onChange={handleChange}
-                                    placeholder="VD: Nguyễn Văn A" required type="text"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Mã sinh viên</label>
-                                <input 
-                                    className="w-full bg-surface-container-highest border-b-2 border-transparent focus:border-primary focus:ring-0 rounded-t-lg px-4 py-3 text-sm text-on-surface transition-colors outline-none" 
-                                    name="student_code" value={formData.student_code} onChange={handleChange}
-                                    placeholder="VD: SV20240001" required type="text"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Số CCCD</label>
-                                <input 
-                                    className="w-full bg-surface-container-highest border-b-2 border-transparent focus:border-primary focus:ring-0 rounded-t-lg px-4 py-3 text-sm text-on-surface transition-colors outline-none" 
-                                    name="cccd" value={formData.cccd} onChange={handleChange}
-                                    placeholder="VD: 001203040506" required type="text"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Giới tính</label>
-                                <select 
-                                    className="w-full bg-surface-container-highest border-b-2 border-transparent focus:border-primary focus:ring-0 rounded-t-lg px-4 py-3 text-sm text-on-surface transition-colors outline-none" 
-                                    name="gender" value={formData.gender} onChange={handleChange} required
-                                >
-                                    <option disabled value="">Chọn giới tính</option>
-                                    <option value="FEMALE">Nữ</option>
-                                    <option value="MALE">Nam</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Ngày sinh</label>
-                                <input 
-                                    className="w-full bg-surface-container-highest border-b-2 border-transparent focus:border-primary focus:ring-0 rounded-t-lg px-4 py-3 text-sm text-on-surface transition-colors outline-none" 
-                                    name="dob" value={formData.dob} onChange={handleChange}
-                                    required type="date"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Địa chỉ Email</label>
-                                <input 
-                                    className="w-full bg-surface-container-highest border-b-2 border-transparent focus:border-primary focus:ring-0 rounded-t-lg px-4 py-3 text-sm text-on-surface transition-colors outline-none" 
-                                    name="email" value={formData.email} onChange={handleChange}
-                                    placeholder="nguyenvana@university.edu.vn" required type="email"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Số điện thoại</label>
-                                <input 
-                                    className="w-full bg-surface-container-highest border-b-2 border-transparent focus:border-primary focus:ring-0 rounded-t-lg px-4 py-3 text-sm text-on-surface transition-colors outline-none" 
-                                    name="phone" value={formData.phone} onChange={handleChange}
-                                    placeholder="0987654321" required type="tel"
-                                />
-                            </div>
-                        </div>
+                        <h2 className="text-2xl font-bold text-amber-900 mb-2">Hiện chưa có đợt đăng ký nào mở</h2>
+                        <p className="text-amber-700 max-w-md mx-auto">
+                            Rất tiếc, cổng đăng ký trực tuyến hiện đang đóng. Vui lòng quay lại sau hoặc liên hệ Văn phòng Quản lý KTX để biết thêm chi tiết.
+                        </p>
+                        <Link to="/" className="inline-block mt-6 px-6 py-2 bg-amber-600 text-white rounded-lg font-bold hover:bg-amber-700 transition-all">
+                            Quay lại Trang chủ
+                        </Link>
                     </div>
-
-                    {/* Academic Information Card */}
-                    <div className="bg-white rounded-lg overflow-hidden shadow-[0_12px_32px_-4px_rgba(25,28,29,0.06)] border border-outline-variant/30">
-                        <div className="bg-surface-container-high px-6 py-4 border-b border-outline-variant/10">
-                            <h2 className="text-lg font-headline font-semibold text-on-surface flex items-center gap-2">
-                                <School className="text-primary" size={20} />
-                                Thông Tin Học Tập
-                            </h2>
-                        </div>
-                        <div className="p-6">
-                            <div className="max-w-md">
-                                <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Tên lớp</label>
-                                <input 
-                                    className="w-full bg-surface-container-highest border-b-2 border-transparent focus:border-primary focus:ring-0 rounded-t-lg px-4 py-3 text-sm text-on-surface transition-colors outline-none" 
-                                    name="class_name" value={formData.class_name} onChange={handleChange}
-                                    placeholder="VD: K65-CNTT01" required type="text"
-                                />
+                ) : (
+                    <>
+                        <div className="mb-10">
+                            <div className="inline-flex items-center gap-2 px-3 py-1 bg-green-50 text-green-700 rounded-full text-xs font-bold uppercase tracking-widest mb-4">
+                                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                                Đang mở: {activePeriod.semester}
                             </div>
+                            <h1 className="text-3xl font-black text-slate-900 mb-2">Đăng Ký Lưu Trú KTX</h1>
+                            <p className="text-slate-500">Vui lòng điền đầy đủ và chính xác thông tin để được xét duyệt phòng.</p>
                         </div>
-                    </div>
 
-                    {/* Room Preference Card */}
-                    <div className="bg-white rounded-lg overflow-hidden shadow-[0_12px_32px_-4px_rgba(25,28,29,0.06)] border border-outline-variant/30">
-                        <div className="bg-surface-container-high px-6 py-4 border-b border-outline-variant/10">
-                            <h2 className="text-lg font-headline font-semibold text-on-surface flex items-center gap-2">
-                                <BedDouble className="text-primary" size={20} />
-                                Nguyện Vọng Xếp Phòng
-                            </h2>
-                        </div>
-                        <div className="p-6 space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Tòa nhà</label>
-                                    <select 
-                                        className="w-full bg-surface-container-highest border-b-2 border-transparent focus:border-primary focus:ring-0 rounded-t-lg px-4 py-3 text-sm text-on-surface transition-colors outline-none" 
-                                        name="building" value={formData.building} onChange={handleChange} required
-                                    >
-                                        <option disabled value="">Chọn tòa nhà</option>
-                                        <option value="A1">Tòa A1</option>
-                                        <option value="A2">Tòa A2</option>
-                                        <option value="B1">Tòa B1</option>
-                                        <option value="B2">Tòa B2</option>
-                                    </select>
+                        {message.text && (
+                            <div className={`mb-8 p-4 rounded-xl flex items-center gap-3 border ${message.type === 'success' ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700'}`}>
+                                {message.type === 'success' ? <CheckCircle2 size={20}/> : <AlertCircle size={20}/>}
+                                <p className="text-sm font-medium">{message.text}</p>
+                            </div>
+                        )}
+
+                        <form onSubmit={handleSubmit} className="space-y-8">
+                            {/* Thông tin cá nhân */}
+                            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                                <div className="px-6 py-4 bg-slate-50 border-b border-slate-200">
+                                    <h2 className="font-bold flex items-center gap-2"><User size={18} className="text-blue-600"/> Thông tin cá nhân</h2>
                                 </div>
-                                <div>
-                                    <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Số phòng</label>
-                                    <select 
-                                        className="w-full bg-surface-container-highest border-b-2 border-transparent focus:border-primary focus:ring-0 rounded-t-lg px-4 py-3 text-sm text-on-surface transition-colors outline-none" 
-                                        name="requested_room" value={formData.requested_room} onChange={handleChange} required
-                                    >
-                                        <option disabled value="">Chọn phòng</option>
-                                        <option value="101">101</option>
-                                        <option value="102">102</option>
-                                        <option value="201">201</option>
-                                        <option value="202">202</option>
-                                    </select>
+                                <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="md:col-span-2">
+                                        <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Họ và tên</label>
+                                        <input required name="fullName" value={formData.fullName} onChange={handleChange} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="VD: Nguyễn Văn A" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Mã sinh viên</label>
+                                        <input required name="studentCode" value={formData.studentCode} onChange={handleChange} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="VD: B21DCCN001" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Số CCCD</label>
+                                        <input required name="cccd" value={formData.cccd} onChange={handleChange} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="VD: 012345678901" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Giới tính</label>
+                                        <select required name="gender" value={formData.gender} onChange={handleChange} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                                            <option value="">Chọn giới tính</option>
+                                            <option value="MALE">Nam</option>
+                                            <option value="FEMALE">Nữ</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Ngày sinh</label>
+                                        <input required type="date" name="dob" value={formData.dob} onChange={handleChange} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Email</label>
+                                        <input required type="email" name="email" value={formData.email} onChange={handleChange} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="sv@ptit.edu.vn" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Số điện thoại</label>
+                                        <input required name="phone" value={formData.phone} onChange={handleChange} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="0987654321" />
+                                    </div>
                                 </div>
                             </div>
-                            <div>
-                                <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Ghi chú / Yêu cầu đặc biệt</label>
-                                <textarea 
-                                    className="w-full bg-surface-container-highest border-b-2 border-transparent focus:border-primary focus:ring-0 rounded-t-lg px-4 py-3 text-sm text-on-surface transition-colors resize-none outline-none" 
-                                    name="note" value={formData.note} onChange={handleChange}
-                                    placeholder="Các yêu cầu y tế, nguyện vọng bạn cùng phòng..." rows="4"
-                                ></textarea>
-                            </div>
-                        </div>
-                    </div>
 
-                    {/* Submit Actions */}
-                    <div className="flex flex-col sm:flex-row justify-end gap-4 pt-4">
-                        <button className="bg-transparent border border-outline-variant text-on-surface-variant px-8 py-3 rounded-lg font-medium hover:bg-surface-container-high transition-colors" type="button">
-                            Lưu nháp
-                        </button>
-                        <button className="bg-primary text-white px-10 py-3 rounded-lg font-medium hover:opacity-90 shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2" type="submit">
-                            Gửi Đơn Đăng Ký
-                            <ArrowRight size={18} />
-                        </button>
-                    </div>
-                </form>
+                            {/* Thông tin học tập */}
+                            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                                <div className="px-6 py-4 bg-slate-50 border-b border-slate-200">
+                                    <h2 className="font-bold flex items-center gap-2"><School size={18} className="text-blue-600"/> Thông tin học tập</h2>
+                                </div>
+                                <div className="p-6">
+                                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Tên lớp</label>
+                                    <input required name="className" value={formData.className} onChange={handleChange} className="w-full max-w-xs px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="VD: D21CQCN01-B" />
+                                </div>
+                            </div>
+
+                            {/* Nguyện vọng phòng */}
+                            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                                <div className="px-6 py-4 bg-slate-50 border-b border-slate-200">
+                                    <h2 className="font-bold flex items-center gap-2"><BedDouble size={18} className="text-blue-600"/> Nguyện vọng phòng</h2>
+                                </div>
+                                <div className="p-6 space-y-6">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Chọn Tòa nhà</label>
+                                            <select required name="buildingName" value={formData.buildingName} onChange={handleChange} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                                                <option value="">Chọn tòa nhà</option>
+                                                {buildings.map(b => <option key={b.name} value={b.name}>{b.name}</option>)}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Chọn Phòng (Nguyện vọng)</label>
+                                            <select name="requestedRoomId" value={formData.requestedRoomId} onChange={handleChange} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all" disabled={!formData.buildingName}>
+                                                <option value="">Không bắt buộc</option>
+                                                {rooms.map(r => <option key={r.id} value={r.id}>Phòng {r.roomNumber} ({r.gender === 'MALE' ? 'Nam' : 'Nữ'})</option>)}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Ghi chú</label>
+                                        <textarea name="note" value={formData.note} onChange={handleChange} rows="3" className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-none" placeholder="Nguyện vọng ở cùng bạn bè, yêu cầu sức khỏe..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex justify-end gap-4 pt-4">
+                                <button type="submit" disabled={submitting} className="bg-blue-600 text-white px-10 py-3 rounded-2xl font-bold hover:bg-blue-700 shadow-lg shadow-blue-600/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50">
+                                    {submitting ? <Loader2 className="animate-spin w-5 h-5"/> : <><ArrowRight size={18}/> Gửi Đơn Đăng Ký</>}
+                                </button>
+                            </div>
+                        </form>
+                    </>
+                )}
             </main>
-
-            {/* Footer */}
-            <footer className="bg-slate-50 text-sm font-inter text-slate-500 py-12 border-t border-slate-200 mt-auto">
-                <div className="flex flex-col md:flex-row justify-between items-center w-full px-8 max-w-7xl mx-auto gap-4">
-                    <div className="font-bold text-slate-900">
-                        PTIT - KTX
-                    </div>
-                    <div className="flex gap-6">
-                        <a className="hover:text-primary underline decoration-2 underline-offset-4 transition-all" href="#">Chính sách bảo mật</a>
-                        <a className="hover:text-primary underline decoration-2 underline-offset-4 transition-all" href="#">Điều khoản dịch vụ</a>
-                        <a className="hover:text-primary underline decoration-2 underline-offset-4 transition-all" href="#">Trợ năng</a>
-                    </div>
-                    <div>
-                        © 2024 Quản lý KTX Đại học. Đã đăng ký bản quyền.
-                    </div>
-                </div>
-            </footer>
         </div>
     );
 };
