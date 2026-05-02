@@ -134,4 +134,9 @@ public class RegistrationService {
             System.err.println("Lỗi tạo tài khoản cho sinh viên " + student.getStudentCode() + ": " + e.getMessage());
         }
     }
+
+    public void deleteRegistration(Integer id) {
+        Registration registration = getRegistrationById(id);
+        registrationRepository.delete(registration);
+    }
 }

@@ -3,12 +3,16 @@ package com.nhom586.ktxmanagement.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "registrations", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"period_id", "student_code"})
 })
+@SQLDelete(sql = "UPDATE registrations SET is_deleted = true WHERE id=?")
+@SQLRestriction("is_deleted=false")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -44,6 +48,9 @@ public class Registration {
 
     @Column(columnDefinition = "TEXT")
     private String note;
+
+    @Column(name = "is_deleted")
+    private boolean isDeleted = false;
 
     public enum RequestType {
         NEW_REGISTER, EXTENSION

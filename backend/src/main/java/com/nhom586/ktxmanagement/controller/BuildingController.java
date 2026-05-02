@@ -45,7 +45,8 @@ public class BuildingController {
     }
     @DeleteMapping("/{name}")
     @PreAuthorize("hasRole('ADMIN')")
-    public void deleteBuilding(@PathVariable("name") String name) {
+    public String deleteBuilding(@PathVariable("name") String name) {
         buildingService.deleteBuilding(name);
+        return "Tòa nhà đã được xóa thành công";
     }
 }

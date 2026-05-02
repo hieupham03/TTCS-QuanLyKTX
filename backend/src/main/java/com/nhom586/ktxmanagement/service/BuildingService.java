@@ -6,6 +6,7 @@ import com.nhom586.ktxmanagement.dto.request.BuildingUpdateRequest;
 import com.nhom586.ktxmanagement.entity.Building;
 import com.nhom586.ktxmanagement.mapper.BuildingMapper;
 import com.nhom586.ktxmanagement.repository.BuildingRepository;
+import com.nhom586.ktxmanagement.repository.RoomRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -18,6 +19,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class BuildingService {
     BuildingRepository buildingRepository;
+    RoomRepository roomRepository;
     BuildingMapper buildingMapper;
 
 
@@ -51,6 +53,13 @@ public class BuildingService {
 
     public void deleteBuilding(String name) {
         Building building = getBuilding(name);
+
+        // Kiểm tra xem tòa nhà có chứa phòng nào không
+        List<com.nhom586.ktxmanagement.entity.Room> rooms = roomRepository.findRoomsByBuildingName(name);
+        if (!rooms.isEmpty()) {
+            throw new RuntimeException("Không thể xóa tòa nhà vì vẫn còn phòng bên trong.");
+        }
+
         buildingRepository.delete(building);
     }
 

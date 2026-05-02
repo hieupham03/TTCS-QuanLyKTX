@@ -124,4 +124,15 @@ public class RepairRequestController {
             @RequestBody RepairRequestStatusUpdateRequest request) {
         return repairRequestService.updateRepairRequestStatus(id, request);
     }
+
+    /**
+     * DELETE /api/repair-requests/{id}
+     * Xóa yêu cầu báo hỏng (Admin).
+     */
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String deleteRepairRequest(@PathVariable Integer id) {
+        repairRequestService.deleteRepairRequest(id);
+        return "Yêu cầu báo hỏng đã được xóa thành công";
+    }
 }

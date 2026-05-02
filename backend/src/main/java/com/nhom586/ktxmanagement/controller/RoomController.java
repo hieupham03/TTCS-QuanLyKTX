@@ -60,7 +60,16 @@ public class RoomController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public void deleteRoom(@PathVariable Integer id) {
+    public String deleteRoom(@PathVariable Integer id) {
         roomService.deleteRoom(id);
+        return "Phòng đã được xóa thành công";
+    }
+
+    // Xóa phòng
+    @DeleteMapping("number/{roomNumber}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String deleteRoomByRoomNumber(@Valid @PathVariable("roomNumber") String roomNumber) {
+        roomService.deleteRoomByNumber(roomNumber);
+        return "Phòng đã được xóa thành công";
     }
 }

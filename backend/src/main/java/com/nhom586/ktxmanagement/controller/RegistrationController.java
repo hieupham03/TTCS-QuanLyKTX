@@ -118,4 +118,15 @@ public class RegistrationController {
             @RequestBody @Valid RegistrationStatusUpdateRequest request) {
         return registrationService.updateRegistrationStatus(id, request);
     }
+
+    /**
+     * DELETE /api/registrations/{id}
+     * Xóa đơn đăng ký (Admin).
+     */
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String deleteRegistration(@PathVariable("id") Integer id) {
+        registrationService.deleteRegistration(id);
+        return "Đơn đăng ký đã được xóa thành công";
+    }
 }

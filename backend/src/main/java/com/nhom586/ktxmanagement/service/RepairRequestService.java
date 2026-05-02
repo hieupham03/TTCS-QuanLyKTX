@@ -80,4 +80,9 @@ public class RepairRequestService {
         repairRequest.setStatus(request.getStatus());
         return repairRequestRepository.save(repairRequest);
     }
+
+    public void deleteRepairRequest(Integer id) {
+        RepairRequest repairRequest = getRepairRequestById(id);
+        repairRequestRepository.delete(repairRequest);
+    }
 }

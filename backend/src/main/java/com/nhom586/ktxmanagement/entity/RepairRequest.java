@@ -3,10 +3,14 @@ package com.nhom586.ktxmanagement.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "repair_requests")
+@SQLDelete(sql = "UPDATE repair_requests SET is_deleted = true WHERE id=?")
+@SQLRestriction("is_deleted=false")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -34,6 +38,9 @@ public class RepairRequest {
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "is_deleted")
+    private boolean isDeleted = false;
 
     public enum RepairStatus {
         PENDING, IN_PROGRESS, DONE

@@ -116,7 +116,26 @@ public class RoomService {
 
     public void deleteRoom(Integer id) {
         Room room = getRoomById(id);
+        checkRoomDeletable(room);
         roomRepository.delete(room);
+    }
+
+    // Xóa phòng theo số hiệu
+    public void deleteRoomByNumber(String roomNumber) {
+        Room room = getRoomByRoomNumber(roomNumber);
+        checkRoomDeletable(room);
+        roomRepository.delete(room);
+    }
+
+    private void checkRoomDeletable(Room room) {
+        long activeStudentCount = contractRepository.countByRoomIdAndStatus(
+                room.getId(), 
+                Contract.ContractStatus.ACTIVE
+        );
+        
+        if (activeStudentCount > 0) {
+            throw new RuntimeException("Không thể xóa phòng đang có sinh viên lưu trú.");
+        }
     }
 
 }
