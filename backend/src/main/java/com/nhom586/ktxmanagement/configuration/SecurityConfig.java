@@ -40,7 +40,7 @@ public class SecurityConfig {
     };
 
     private final String[] PRIVATE_ENDPOINTS_POST = {
-            "/api/auth/logout", "/api/repair-requests/**"
+            "/api/auth/logout", "/api/repair-requests/**", "/api/accounts/change-password"
     };
 
     private final String[] PRIVATE_ENDPOINTS_GET = {

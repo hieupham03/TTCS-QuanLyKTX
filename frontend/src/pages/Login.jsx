@@ -59,7 +59,12 @@ const Login = () => {
                 setError('Tên đăng nhập hoặc mật khẩu không chính xác.');
             }
         } catch (err) {
-            setError(err.response?.data?.message || 'Đã xảy ra lỗi khi đăng nhập. Vui lòng thử lại.');
+            console.error("Login error:", err);
+            const backendMsg = err.response?.data?.message;
+            const backendErr = err.response?.data?.error;
+            const statusText = err.response?.statusText;
+            
+            setError(backendMsg || backendErr || statusText || 'Đã xảy ra lỗi khi đăng nhập. Vui lòng thử lại.');
         } finally {
             setLoading(false);
         }

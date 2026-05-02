@@ -84,6 +84,13 @@ const StudentProfile = () => {
 
     const handlePasswordChange = async (e) => {
         e.preventDefault();
+        
+        // Validation ở Frontend
+        if (passwordData.password.length < 6) {
+            setPasswordError('Mật khẩu mới phải có ít nhất 6 ký tự!');
+            return;
+        }
+
         if (passwordData.password !== passwordData.repeatPassword) {
             setPasswordError('Mật khẩu nhập lại không khớp!');
             return;
@@ -98,7 +105,12 @@ const StudentProfile = () => {
             setShowPasswordModal(false);
             setPasswordData({ oldPassword: '', password: '', repeatPassword: '' });
         } catch (error) {
-            setPasswordError(error.response?.data?.message || 'Có lỗi xảy ra khi đổi mật khẩu.');
+            console.error("Password change error:", error);
+            const backendMsg = error.response?.data?.message;
+            const backendErr = error.response?.data?.error;
+            const statusText = error.response?.statusText;
+            
+            setPasswordError(backendMsg || backendErr || statusText || 'Máy chủ không phản hồi, vui lòng thử lại sau.');
         } finally {
             setUpdating(false);
         }

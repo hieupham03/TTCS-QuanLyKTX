@@ -107,8 +107,15 @@ const Registration = () => {
             setMessage({ type: 'success', text: 'Đơn đăng ký của bạn đã được gửi thành công! Admin sẽ duyệt và phản hồi sớm.' });
             setTimeout(() => navigate('/'), 5000);
         } catch (error) {
-            const errorMsg = error.response?.data?.message || "Đã có lỗi xảy ra. Vui lòng kiểm tra lại thông tin.";
-            setMessage({ type: 'error', text: errorMsg });
+            console.error("Registration error:", error);
+            const backendMsg = error.response?.data?.message;
+            const backendErr = error.response?.data?.error;
+            const statusText = error.response?.statusText;
+            
+            setMessage({ 
+                type: 'error', 
+                text: backendMsg || backendErr || statusText || "Đã có lỗi xảy ra. Vui lòng kiểm tra lại thông tin." 
+            });
         } finally {
             setSubmitting(false);
         }
