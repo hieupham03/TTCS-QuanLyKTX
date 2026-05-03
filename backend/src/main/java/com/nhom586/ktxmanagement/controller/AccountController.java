@@ -57,4 +57,10 @@ public class AccountController {
         return "Đổi mật khẩu thành công";
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/{id}/toggle-status")
+    public Account toggleStatus(@PathVariable("id") Integer id) {
+        return accountService.toggleStatus(id);
+    }
+
 }

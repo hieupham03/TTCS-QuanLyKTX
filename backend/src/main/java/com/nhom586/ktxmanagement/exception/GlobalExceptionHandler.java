@@ -36,4 +36,13 @@ public class GlobalExceptionHandler {
                 .build();
         return ResponseEntity.badRequest().body(apiResponse);
     }
+
+    @ExceptionHandler(value = Exception.class)
+    public ResponseEntity<ApiResponse<Void>> handlingException (Exception exception) {
+        ApiResponse<Void> apiResponse = ApiResponse.<Void>builder()
+                .code(500)
+                .message("Lỗi hệ thống: " + exception.getMessage())
+                .build();
+        return ResponseEntity.status(500).body(apiResponse);
+    }
 }

@@ -40,9 +40,10 @@ public class ForgotPasswordService {
     private String emailName;
 
 
+    @org.springframework.transaction.annotation.Transactional
     public void verifyMail (String email) {
         Account account = accountRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Không  tồn tại tài khoản với email: " + email));
+                .orElseThrow(() -> new RuntimeException("Không tồn tại tài khoản với email: " + email));
 
         Integer otp = generateOtp();
 
@@ -50,7 +51,7 @@ public class ForgotPasswordService {
 
         ForgotPassword forgotPassword = ForgotPassword.builder()
                 .otp(otp)
-                .expirationTime(new Date(Instant.now().plus(1, ChronoUnit.MINUTES).toEpochMilli()))
+                .expirationTime(new Date(Instant.now().plus(5, ChronoUnit.MINUTES).toEpochMilli()))
                 .account(account)
                 .build();
 
@@ -59,19 +60,27 @@ public class ForgotPasswordService {
         MailBodyResponse response = MailBodyResponse.builder()
                 .to(email)
                 .subject("Reset Password")
-                .content(String.format("Đây là mã OTP cho yêu cầu quên  mật khẩu: %s.\n\nMã OTP có hiệu lực 5 phút.", otp))
+                .content(String.format("Đây là mã OTP cho yêu cầu quên mật khẩu: %s.\n\nMã OTP có hiệu lực 5 phút.", otp))
                 .build();
 
-        sendMail(response);
+        try {
+            sendMail(response);
+        } catch (Exception e) {
+            throw new RuntimeException("Gửi email thất bại: " + e.getMessage());
+        }
     }
 
     public void verifyOtp (String email, Integer otp) {
         Account account = accountRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Không  tồn tại tài khoản với email: " + email));
 
-        // Tìm kiếm bản ghi của  otp
+        // Tìm kiếm bản ghi của otp
+        System.out.println("Checking OTP for email: " + email + " with value: " + otp);
         ForgotPassword fp = forgotPasswordRepository.findByAccountAndOtp(account, otp)
-                .orElseThrow(() -> new RuntimeException("bản ghi không tồn tại"));
+                .orElseThrow(() -> {
+                    System.out.println("OTP Record not found for account: " + account.getUsername() + " and OTP: " + otp);
+                    return new RuntimeException("Mã OTP không chính xác.");
+                });
 
         // Kiểm tra thời hạn của Otp
         Date expirationTime = fp.getExpirationTime();

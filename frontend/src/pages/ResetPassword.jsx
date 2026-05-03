@@ -1,29 +1,44 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Key, Lock, Info, CheckCircle2, ArrowLeft } from 'lucide-react';
+import axios from 'axios';
+import { Key, Lock, Info, CheckCircle2, ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
 
 const ResetPassword = () => {
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
     const location = useLocation();
     const navigate = useNavigate();
     const email = location.state?.email || 'email@example.com';
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (newPassword !== confirmPassword) {
-            alert("Mật khẩu không khớp!");
+            setError("Mật khẩu không khớp!");
             return;
         }
-        if (newPassword.length < 8) {
-            alert("Mật khẩu phải có ít nhất 8 ký tự.");
+        if (newPassword.length < 6) {
+            setError("Mật khẩu phải có ít nhất 6 ký tự.");
             return;
         }
 
-        // TODO: Call API /api/forgotPassword/changePassword/{email}
-        console.log("Resetting password for:", email);
-        alert("Cập nhật mật khẩu thành công!");
-        navigate('/login');
+        setLoading(true);
+        setError('');
+
+        try {
+            await axios.post(`/api/forgotPassword/changePassword/${email}`, {
+                password: newPassword,
+                repeatPassword: confirmPassword
+            });
+            alert("Cập nhật mật khẩu thành công!");
+            navigate('/login');
+        } catch (err) {
+            console.error("Reset password error:", err);
+            setError(err.response?.data?.message || 'Có lỗi xảy ra khi cập nhật mật khẩu.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -40,6 +55,12 @@ const ResetPassword = () => {
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
+                    {error && (
+                        <div className="p-3 bg-red-50 border border-red-100 text-red-600 rounded-lg text-xs font-medium flex items-center gap-2">
+                            <AlertCircle size={14} />
+                            {error}
+                        </div>
+                    )}
                     <div>
                         <label className="block text-[0.6875rem] uppercase tracking-[0.05em] text-on-surface-variant font-bold mb-2" htmlFor="new_password">Mật khẩu mới</label>
                         <div className="relative">
@@ -74,16 +95,23 @@ const ResetPassword = () => {
 
                     <div className="flex items-start gap-3 bg-surface-container-low p-4 rounded-lg mt-2">
                         <Info className="text-primary w-5 h-5 shrink-0 mt-0.5" />
-                        <p className="text-sm text-on-surface-variant leading-relaxed">Ít nhất 8 ký tự, bao gồm chữ cái và số.</p>
+                        <p className="text-sm text-on-surface-variant leading-relaxed">Ít nhất 6 ký tự, nên bao gồm cả chữ cái và số.</p>
                     </div>
 
                     <div className="pt-4">
                         <button 
-                            className="w-full bg-gradient-to-br from-blue-600 to-blue-500 text-white font-medium py-3.5 px-6 rounded-lg hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2" 
+                            className="w-full bg-gradient-to-br from-blue-600 to-blue-500 text-white font-medium py-3.5 px-6 rounded-lg hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50" 
                             type="submit"
+                            disabled={loading}
                         >
-                            Cập nhật mật khẩu
-                            <CheckCircle2 size={20} />
+                            {loading ? (
+                                <Loader2 className="animate-spin" size={20} />
+                            ) : (
+                                <>
+                                    Cập nhật mật khẩu
+                                    <CheckCircle2 size={20} />
+                                </>
+                            )}
                         </button>
                     </div>
 

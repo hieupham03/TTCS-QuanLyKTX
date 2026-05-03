@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Bell } from 'lucide-react';
+import { Bell } from 'lucide-react';
 
 const Header = () => {
     const [userData, setUserData] = useState({ name: 'Người dùng', role: 'Thành viên' });
@@ -30,14 +30,6 @@ const Header = () => {
             <div className="flex items-center gap-8">
                 <span className="text-xl font-bold tracking-tight text-slate-900 font-headline">PTIT - KTX</span>
                 
-                <div className="hidden md:flex items-center bg-slate-50 px-4 py-2 rounded-lg gap-3 w-80">
-                    <Search className="text-slate-400" size={20} />
-                    <input 
-                        className="bg-transparent border-none focus:ring-0 text-sm w-full p-0 outline-none placeholder:text-slate-400" 
-                        placeholder="Tìm kiếm..." 
-                        type="text"
-                    />
-                </div>
             </div>
 
             <div className="flex items-center gap-4">

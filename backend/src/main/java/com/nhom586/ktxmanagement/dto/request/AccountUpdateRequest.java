@@ -20,5 +20,5 @@ public class AccountUpdateRequest {
     String email;
 
     @NotNull
-    String isActive;
+    Boolean isActive;
 }

@@ -1,17 +1,29 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, ArrowLeft } from 'lucide-react';
+import axios from 'axios';
 
 const ForgotPassword = () => {
     const [email, setEmail] = useState('');
     const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // TODO: Call API /api/forgotPassword/verifyMail/ with email
-        console.log("Requesting OTP for:", email);
-        // Simulate success and navigate to OTP verification
-        navigate('/verify-otp', { state: { email } });
+        setLoading(true);
+        setError('');
+        
+        try {
+            await axios.post(`/api/forgotPassword/verifyMail/${email}`);
+            navigate('/verify-otp', { state: { email } });
+        } catch (err) {
+            console.error("Forgot password error:", err);
+            setError(err.response?.data?.message || 'Không thể gửi mã xác nhận. Vui lòng kiểm tra lại email.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -33,6 +45,11 @@ const ForgotPassword = () => {
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
+                        {error && (
+                            <div className="p-3 bg-red-50 border border-red-100 text-red-600 rounded-lg text-xs font-medium">
+                                {error}
+                            </div>
+                        )}
                         <div>
                             <label className="block text-xs font-semibold text-on-surface-variant uppercase tracking-wide mb-2" htmlFor="email">Email</label>
                             <div className="relative">
@@ -53,10 +70,11 @@ const ForgotPassword = () => {
 
                         <div>
                             <button 
-                                className="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold py-3 px-4 rounded-lg transition-transform duration-150 hover:scale-[0.98] shadow-sm text-sm" 
+                                className="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold py-3 px-4 rounded-lg transition-transform duration-150 hover:scale-[0.98] shadow-sm text-sm disabled:opacity-50" 
                                 type="submit"
+                                disabled={loading}
                             >
-                                Gửi mã xác nhận
+                                {loading ? 'Đang gửi...' : 'Gửi mã xác nhận'}
                             </button>
                         </div>
                     </form>

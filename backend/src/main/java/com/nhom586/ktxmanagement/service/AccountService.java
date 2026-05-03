@@ -86,4 +86,13 @@ public class AccountService {
         account.setPasswordHash(passwordEncoder.encode(request.getPassword()));
         accountRepository.save(account);
     }
+
+    public Account toggleStatus(Integer id) {
+        Account account = getAccountById(id);
+        if (account.getRole().getRoleName().equals("ADMIN")) {
+            throw new RuntimeException("Không thể khóa tài khoản Quản trị viên.");
+        }
+        account.setIsActive(!account.getIsActive());
+        return accountRepository.save(account);
+    }
 }

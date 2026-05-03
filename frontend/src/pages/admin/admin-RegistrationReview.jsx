@@ -168,10 +168,6 @@ export default function RegistrationReview() {
                             className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none"
                         />
                     </div>
-                    <div className="flex flex-col items-end gap-0.5">
-                        <span className="text-xs font-semibold text-slate-900">{filtered.length} đơn hiển thị</span>
-                        <span className="text-[10px] font-medium text-slate-400">Tổng từ máy chủ: {registrations.length} đơn</span>
-                    </div>
                 </div>
 
                 {loading ? (
@@ -258,6 +254,7 @@ export default function RegistrationReview() {
                                     ['SĐT', selected.student?.phone],
                                     ['Loại đơn', TYPE_CONFIG[selected.requestType]?.label],
                                     ['Phòng nguyện vọng', selected.requestedRoom?.roomNumber ? `P.${selected.requestedRoom.roomNumber}` : 'Không có'],
+                                    ['Tòa nguyện vọng', selected.requestedRoom?.building?.name || 'Không có'],
                                     ['Ghi chú', selected.note || '--'],
                                 ].map(([label, val]) => (
                                     <div key={label} className="flex justify-between text-sm">
