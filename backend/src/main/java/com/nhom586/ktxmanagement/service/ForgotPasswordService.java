@@ -40,33 +40,35 @@ public class ForgotPasswordService {
     private String emailName;
 
 
-    @org.springframework.transaction.annotation.Transactional
     public void verifyMail (String email) {
         Account account = accountRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Không tồn tại tài khoản với email: " + email));
 
         Integer otp = generateOtp();
 
+        // Xóa OTP cũ nếu có
         forgotPasswordRepository.deleteByAccount(account);
 
+        // Lưu OTP mới vào DB - commit ngay lập tức (không dùng @Transactional bao ngoài)
         ForgotPassword forgotPassword = ForgotPassword.builder()
                 .otp(otp)
                 .expirationTime(new Date(Instant.now().plus(5, ChronoUnit.MINUTES).toEpochMilli()))
                 .account(account)
                 .build();
+        forgotPasswordRepository.saveAndFlush(forgotPassword);
 
-        forgotPasswordRepository.save(forgotPassword);
-
+        // Gửi mail SAU KHI đã commit vào DB
         MailBodyResponse response = MailBodyResponse.builder()
                 .to(email)
-                .subject("Reset Password")
-                .content(String.format("Đây là mã OTP cho yêu cầu quên mật khẩu: %s.\n\nMã OTP có hiệu lực 5 phút.", otp))
+                .subject("[PTIT-KTX] Mã xác nhận đặt lại mật khẩu")
+                .content(String.format("Mã OTP của bạn là: %s\n\nMã có hiệu lực trong 5 phút. Không chia sẻ mã này với ai.", otp))
                 .build();
 
         try {
             sendMail(response);
         } catch (Exception e) {
-            throw new RuntimeException("Gửi email thất bại: " + e.getMessage());
+            // Mail thất bại nhưng OTP đã được lưu - người dùng có thể thử gửi lại
+            throw new RuntimeException("Gửi email thất bại, vui lòng kiểm tra lại email hoặc thử lại sau.");
         }
     }
 
