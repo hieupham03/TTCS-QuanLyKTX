@@ -1,33 +1,19 @@
-HELP.md
-target/
-.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+# Master .gitignore (Global Project Settings)
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
+# IDEs
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
 .sts4-cache
 
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
+# Global artifacts (only if at root)
+/target/
+/node_modules/
 /dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
-
-### VS Code ###
-.vscode/

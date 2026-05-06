@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary-color: #0057cd;
+  --secondary-color: #0d6efd;
+  --surface-bg: #f8f9fa;
+  --text-main: #191c1d;
+  --text-muted: #424655;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--surface-bg);
+  color: var(--text-main);
+  @apply antialiased;
+}
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  vertical-align: middle;
+}
+
+.signature-gradient {
+  background: linear-gradient(135deg, #0057cd 0%, #0d6efd 100%);
+}
+
+@layer components {
+  .glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .input-premium {
+    @apply w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200;
+  }
+
+  .btn-premium {
+    @apply px-6 py-3 signature-gradient text-white font-bold rounded-xl shadow-lg hover:shadow-blue-500/30 hover:-translate-y-0.5 transition-all duration-300;
+  }
+}
