@@ -154,6 +154,7 @@ const OTPVerify = () => {
                         <p className="text-sm text-on-surface-variant">
                             Không nhận được mã?{' '}
                             <button 
+                                type="button"
                                 onClick={handleResendOTP}
                                 disabled={loading}
                                 className="text-primary font-medium hover:underline focus:outline-none transition-all disabled:opacity-50"

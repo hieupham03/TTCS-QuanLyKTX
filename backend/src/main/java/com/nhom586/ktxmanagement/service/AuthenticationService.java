@@ -58,7 +58,7 @@ public class AuthenticationService {
         boolean authenticated = passwordEncoder.matches(request.getPasswordHash(), account.getPasswordHash());
 
         if(!authenticated)
-            throw  new RuntimeException("Không thể xác thực");
+            throw  new RuntimeException("Mật khẩu không chính xác");
 
         var token = generateToken(account);
 
