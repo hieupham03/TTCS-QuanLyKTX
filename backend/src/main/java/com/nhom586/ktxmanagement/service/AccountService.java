@@ -95,4 +95,5 @@ public class AccountService {
         account.setIsActive(!account.getIsActive());
         return accountRepository.save(account);
     }
+
 }

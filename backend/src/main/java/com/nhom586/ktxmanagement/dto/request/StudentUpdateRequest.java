@@ -29,9 +29,11 @@ public class StudentUpdateRequest {
     LocalDate dob;
 
     @NotBlank(message = "Lớp không được để trống")
-    @Size(min = 10, max = 10, message = "Lớp không hợp lệ")
+    @Size(min = 11, max = 11, message = "Lớp không hợp lệ")
     String className;
 
+    @NotBlank(message = "Số điện thoại không được để trống")
+    @Size(min = 10, max = 10, message = "Số điện thoại không không hợp lệ")
     String phone;
 
     @NotBlank(message = "Email  không được để trống")

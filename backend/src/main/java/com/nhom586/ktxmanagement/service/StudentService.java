@@ -13,6 +13,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -22,14 +23,30 @@ public class StudentService {
     AccountRepository accountRepository;
     StudentMapper studentMapper;
 
-    public Student createStudent (StudentCreationRequest request) {
+    public Student createStudent(StudentCreationRequest request) {
 
-        Student student = studentMapper.toStudent(request);
-        if(studentRepository.existsById(request.getStudentCode())){
-            throw new RuntimeException("Mã sinh viên đã tồn tại");
+        Optional<Student> existingStudent = studentRepository.findById(request.getStudentCode());
+        if(existingStudent.isPresent()){
+            Student student = existingStudent.get();
+           // nếu sinh viên đã có tài khoản thì cập nhật lại thông tin
+            if(student.getAccount() != null) {
+                studentMapper.updateStudentFromCreateRequest(student, request);
+                return studentRepository.save(student);
+            }
+            else {
+               throw new RuntimeException("Mã sinh viên đã tồn tại"); 
+            }
         }
 
-        return studentRepository.save(student);
+        if (studentRepository.existsByEmail(request.getEmail())) {
+            throw new RuntimeException("Email đã tồn tại");
+        }
+
+        if (studentRepository.existsByCccd(request.getCccd())) {
+            throw new RuntimeException("CCCD đã tồn tại");
+        }
+        Student newStudent = studentMapper.toStudent(request);
+        return studentRepository.save(newStudent);
     }
 
     public List<Student> getStudents() {
@@ -48,11 +65,12 @@ public class StudentService {
         return studentRepository.save(student);
     }
 
+    // Xoá sinh viên thì xoá tài khoản
     public void  deleteStudent (String studentCode) {
         Student student = getStudent(studentCode);
         if (student.getAccount() != null) {
             student.getAccount().setIsActive(false);
-            accountRepository.save(student.getAccount());
+            accountRepository.deleteById(student.getAccount().getId());
         }
         studentRepository.deleteById(studentCode);
     }

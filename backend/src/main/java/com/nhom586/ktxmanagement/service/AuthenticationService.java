@@ -21,7 +21,6 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -39,6 +38,8 @@ public class AuthenticationService {
 
     AccountRepository accountRepository;
     InvalidateTokenRepository invalidateTokenRepository;
+    PasswordEncoder passwordEncoder;
+
 
     @NonFinal
     @Value("${jwt.secret}")
@@ -49,7 +50,10 @@ public class AuthenticationService {
         Account account = accountRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new RuntimeException("Tên tài khoản không tồn tại"));
 
-        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+        if(!account.getIsActive()) {
+            throw new RuntimeException("Tài khoản đã bị vô hiệu hoá");
+        }
+
 
         boolean authenticated = passwordEncoder.matches(request.getPasswordHash(), account.getPasswordHash());
 
@@ -68,6 +72,7 @@ public class AuthenticationService {
 
         try {
             var signToken = verifyToken(request.getToken());
+            System.out.println(request.getToken());
 
             // Lấy thông tin id và thời hạn token
             String jti = signToken.getJWTClaimsSet().getJWTID();
@@ -135,12 +140,12 @@ public class AuthenticationService {
         // giải mã chuỗi
         SignedJWT signedJWT = SignedJWT.parse(token);
 
-        // Lấy thời hạn token và kiểm tả chữ ký
+        // Lấy thời hạn token và kiểm tra chữ ký
         Date expiry = signedJWT.getJWTClaimsSet().getExpirationTime();
         var verified = signedJWT.verify(jwsVerifier);
 
         if(!(verified && expiry.after(new Date())))
-            throw new RuntimeException("Không thể xác thực");
+            throw new RuntimeException("Không thể xác thực!!!");
 
         if(invalidateTokenRepository.existsById(signedJWT.getJWTClaimsSet().getJWTID()))
             throw new RuntimeException("Token đã hết hạn");

@@ -38,7 +38,7 @@ public class Student {
     @Column(name = "dob")
     private LocalDate dob;
 
-    @Column(name = "class_name", nullable = false, length = 10)
+    @Column(name = "class_name", nullable = false, length = 11)
     private String className;
 
     @Column(length = 10)

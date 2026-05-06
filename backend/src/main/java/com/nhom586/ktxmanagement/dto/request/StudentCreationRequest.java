@@ -33,7 +33,7 @@ public class StudentCreationRequest {
     LocalDate dob;
 
     @NotBlank(message = "Lớp không được để trống")
-    @Size(min = 10, max = 10, message = "Lớp không hợp lệ")
+    @Size(min = 11, max = 11, message = "Lớp không hợp lệ")
     String className;
 
     String phone;

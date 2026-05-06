@@ -2,11 +2,16 @@ package com.nhom586.ktxmanagement.service;
 
 import com.nhom586.ktxmanagement.dto.request.RegistrationPeriodRequest;
 import com.nhom586.ktxmanagement.entity.RegistrationPeriod;
+import com.nhom586.ktxmanagement.entity.Student;
+import com.nhom586.ktxmanagement.repository.AccountRepository;
 import com.nhom586.ktxmanagement.repository.RegistrationPeriodRepository;
+import com.nhom586.ktxmanagement.repository.RegistrationRepository;
+import com.nhom586.ktxmanagement.repository.StudentRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -16,6 +21,9 @@ import java.util.List;
 public class RegistrationPeriodService {
 
     RegistrationPeriodRepository registrationPeriodRepository;
+    StudentRepository studentRepository;
+    AccountRepository accountRepository;
+    RegistrationRepository registrationRepository;
 
     public List<RegistrationPeriod> getAllPeriods() {
         return registrationPeriodRepository.findAll();
@@ -47,12 +55,18 @@ public class RegistrationPeriodService {
         return registrationPeriodRepository.save(period);
     }
 
+    @Transactional
     public RegistrationPeriod closePeriod(Integer id) {
         RegistrationPeriod period = getPeriodById(id);
         if (period.getStatus() == RegistrationPeriod.PeriodStatus.CLOSED) {
             throw new RuntimeException("Đợt đăng ký này đã được đóng trước đó.");
         }
         period.setStatus(RegistrationPeriod.PeriodStatus.CLOSED);
+
+        // Xoá các đơn đăng ký và sinh viên không có tài khoản (chưa được duyệt)
+        registrationRepository.deleteRegistrationsOfStudentsWithoutAccount();
+        studentRepository.deleteStudentsWithoutAccount();
+
         return registrationPeriodRepository.save(period);
     }
 

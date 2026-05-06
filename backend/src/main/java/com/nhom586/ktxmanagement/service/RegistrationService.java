@@ -128,12 +128,13 @@ public class RegistrationService {
             MailBodyResponse response = MailBodyResponse.builder()
                     .to(student.getEmail())
                     .subject("Thông tin tài khoản ký túc xá")
-                    .content("Chào bạn," + student.getFullName() +
-                            "\n\nChúng tôi xin thông báo rằng đơn đăng ký ở ký túc xá của bạn đã được phê duyệt.\n" +
+                    .content("Chào mừng " + student.getFullName() + " quay trở lại."+
+                            "\n\nBan quản lý KTX xin thông báo rằng đơn đăng ký ở ký túc xá của bạn đã được phê duyệt.\n" +
                             "Bạn có thể sử dụng tài khoản đã được cấp để đăng nhập vào hệ thống.\n\n" +
                             "Nếu cần hỗ trợ thêm, vui lòng liên hệ với ban quản lý ký túc xá.\n\n" +
                             "Trân trọng!")
                     .build();
+            forgotPasswordService.sendMail(response);
             return;
         }
 
@@ -144,7 +145,7 @@ public class RegistrationService {
             AccountCreationRequest accountRequest = new AccountCreationRequest();
             accountRequest.setUsername(username);
             accountRequest.setEmail(student.getEmail());
-            accountRequest.setPasswordHash(passwordEncoder.encode(password));
+            accountRequest.setPasswordHash(password);
 
             //tạo tài khoản
             Account createdAccount =accountService.createAccount(accountRequest);
@@ -157,11 +158,12 @@ public class RegistrationService {
                     .to(student.getEmail())
                     .subject("Thông tin tài khoản ký túc xá")
                     .content("Chào bạn, " + student.getFullName() +
-                            "\n\nChúng tôi xin thông báo rằng đơn đăng ký ở ký túc xá của bạn đã được phê duyệt.\n" +
-                            "Đây là thông tin đăng nhập của bạn:\n" +
+                            "\n\nBan quản lý KTX xin thông báo rằng đơn đăng ký ở ký túc xá của bạn đã được phê duyệt.\n" +
+                            "Bạn hãy sử dụng tài khoản sau để đăng nhập vào hệ thống:\n" +
                             "Tên tài khoản: " + username +
-                            "Mật khẩu:" + password +
-                            "TRÂN TRỌNG")
+                            "\nMật khẩu: " + password +
+                            "\n\nĐể đảm bảo an toàn, vui lòng đổi mật khẩu ngay sau khi đăng nhập." +
+                            "\nTRÂN TRỌNG")
                     .build();
 
             forgotPasswordService.sendMail(response);
