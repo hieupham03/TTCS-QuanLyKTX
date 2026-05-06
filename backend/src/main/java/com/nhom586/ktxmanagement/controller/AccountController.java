@@ -1,6 +1,7 @@
 package com.nhom586.ktxmanagement.controller;
 
 
+import com.nhom586.ktxmanagement.dto.request.AccountCreationRequest;
 import com.nhom586.ktxmanagement.dto.request.AccountUpdateRequest;
 import com.nhom586.ktxmanagement.entity.Account;
 import com.nhom586.ktxmanagement.service.AccountService;
@@ -40,6 +41,11 @@ public class AccountController {
     @GetMapping("/{username}")
     Account getAccountByUsername(@Valid @PathVariable("username") String username) {
         return accountService.getAccountByUsername(username);
+    }
+    @PreAuthorize(("hasRole('ADMIN')"))
+    @PostMapping
+    public Account createAccount(@Valid @RequestBody AccountCreationRequest accountCreationRequest) {
+        return accountService.createAccount(accountCreationRequest);
     }
 
 
